@@ -43,124 +43,15 @@ export class AuthAccessTokenSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
-export class ChatConversationSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'fullName',
-    'id',
-    'messages',
-    'profile',
-    'title',
-    'updatedAt',
-    'username',
-  ] as const
-  $columns = ChatConversationSchema.$columns
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+export class RateLimitSchema extends BaseModel {
+  static $columns = ['expire', 'key', 'points'] as const
+  $columns = RateLimitSchema.$columns
   @column()
-  declare fullName: string
+  declare expire: bigint | number | null
   @column({ isPrimary: true })
-  declare id: string
+  declare key: string
   @column()
-  declare messages: string
-  @column()
-  declare profile: string
-  @column()
-  declare title: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
-  @column()
-  declare username: string
-}
-
-export class DirectoryUserSchema extends BaseModel {
-  static $columns = [
-    'authUserId',
-    'createdAt',
-    'email',
-    'firstName',
-    'id',
-    'lastName',
-    'phoneNumber',
-    'role',
-    'status',
-    'updatedAt',
-    'username',
-  ] as const
-  $columns = DirectoryUserSchema.$columns
-  @column()
-  declare authUserId: number | null
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-  @column()
-  declare email: string
-  @column()
-  declare firstName: string
-  @column({ isPrimary: true })
-  declare id: string
-  @column()
-  declare lastName: string
-  @column()
-  declare phoneNumber: string
-  @column()
-  declare role: string
-  @column()
-  declare status: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
-  @column()
-  declare username: string
-}
-
-export class IntegrationSchema extends BaseModel {
-  static $columns = ['connected', 'createdAt', 'description', 'name', 'updatedAt'] as const
-  $columns = IntegrationSchema.$columns
-  @column()
-  declare connected: boolean
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-  @column()
-  declare description: string
-  @column({ isPrimary: true })
-  declare name: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
-}
-
-export class TaskSchema extends BaseModel {
-  static $columns = [
-    'assignee',
-    'createdAt',
-    'description',
-    'dueDate',
-    'id',
-    'label',
-    'priority',
-    'status',
-    'title',
-    'updatedAt',
-  ] as const
-  $columns = TaskSchema.$columns
-  @column()
-  declare assignee: string | null
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-  @column()
-  declare description: string | null
-  @column.dateTime()
-  declare dueDate: DateTime | null
-  @column({ isPrimary: true })
-  declare id: string
-  @column()
-  declare label: string
-  @column()
-  declare priority: string
-  @column()
-  declare status: string
-  @column()
-  declare title: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
+  declare points: number
 }
 
 export class UserSettingSchema extends BaseModel {
@@ -177,18 +68,8 @@ export class UserSettingSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = [
-    'clerkUserId',
-    'createdAt',
-    'email',
-    'fullName',
-    'id',
-    'password',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
   $columns = UserSchema.$columns
-  @column()
-  declare clerkUserId: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column()
@@ -201,4 +82,273 @@ export class UserSchema extends BaseModel {
   declare password: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class WeixinAccountSchema extends BaseModel {
+  static $columns = [
+    'baseUrl',
+    'cdnBaseUrl',
+    'createdAt',
+    'enabled',
+    'encryptedBotToken',
+    'id',
+    'ilinkUserId',
+    'lastError',
+    'lastInboundAt',
+    'lastOutboundAt',
+    'providerAccountId',
+    'status',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = WeixinAccountSchema.$columns
+  @column()
+  declare baseUrl: string
+  @column()
+  declare cdnBaseUrl: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare enabled: boolean
+  @column()
+  declare encryptedBotToken: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare ilinkUserId: string | null
+  @column()
+  declare lastError: string | null
+  @column.dateTime()
+  declare lastInboundAt: DateTime | null
+  @column.dateTime()
+  declare lastOutboundAt: DateTime | null
+  @column()
+  declare providerAccountId: string
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare userId: number
+}
+
+export class WeixinConversationSchema extends BaseModel {
+  static $columns = [
+    'accountId',
+    'createdAt',
+    'encryptedContextToken',
+    'encryptedTypingTicket',
+    'id',
+    'lastMessageAt',
+    'peerUserId',
+    'typingTicketExpiresAt',
+    'updatedAt',
+  ] as const
+  $columns = WeixinConversationSchema.$columns
+  @column()
+  declare accountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare encryptedContextToken: string | null
+  @column()
+  declare encryptedTypingTicket: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column.dateTime()
+  declare lastMessageAt: DateTime | null
+  @column()
+  declare peerUserId: string
+  @column.dateTime()
+  declare typingTicketExpiresAt: DateTime | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class WeixinLoginSessionSchema extends BaseModel {
+  static $columns = [
+    'accountId',
+    'botType',
+    'createdAt',
+    'errorMessage',
+    'expiresAt',
+    'id',
+    'ilinkUserId',
+    'pollingBaseUrl',
+    'qrcode',
+    'qrcodeUrl',
+    'status',
+    'updatedAt',
+    'userId',
+  ] as const
+  $columns = WeixinLoginSessionSchema.$columns
+  @column()
+  declare accountId: string | null
+  @column()
+  declare botType: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare errorMessage: string | null
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare ilinkUserId: string | null
+  @column()
+  declare pollingBaseUrl: string
+  @column()
+  declare qrcode: string
+  @column()
+  declare qrcodeUrl: string
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare userId: number
+}
+
+export class WeixinMessageSchema extends BaseModel {
+  static $columns = [
+    'accountId',
+    'clientMessageId',
+    'createdAt',
+    'direction',
+    'errorCode',
+    'fromUserId',
+    'id',
+    'payload',
+    'providerMessageId',
+    'providerSeq',
+    'receivedAt',
+    'sentAt',
+    'status',
+    'toUserId',
+    'updatedAt',
+  ] as const
+  $columns = WeixinMessageSchema.$columns
+  @column()
+  declare accountId: string
+  @column()
+  declare clientMessageId: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare direction: string
+  @column()
+  declare errorCode: string | null
+  @column()
+  declare fromUserId: string | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare payload: string
+  @column()
+  declare providerMessageId: string | null
+  @column()
+  declare providerSeq: number | null
+  @column.dateTime()
+  declare receivedAt: DateTime | null
+  @column.dateTime()
+  declare sentAt: DateTime | null
+  @column()
+  declare status: string
+  @column()
+  declare toUserId: string | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class WeixinSyncStateSchema extends BaseModel {
+  static $columns = ['accountId', 'getUpdatesBuf', 'updatedAt'] as const
+  $columns = WeixinSyncStateSchema.$columns
+  @column({ isPrimary: true })
+  declare accountId: string
+  @column()
+  declare getUpdatesBuf: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class WeixinWebhookDeliverySchema extends BaseModel {
+  static $columns = [
+    'accountId',
+    'attempts',
+    'createdAt',
+    'deliveredAt',
+    'endpointId',
+    'eventId',
+    'eventType',
+    'id',
+    'lastError',
+    'nextAttemptAt',
+    'payload',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = WeixinWebhookDeliverySchema.$columns
+  @column()
+  declare accountId: string
+  @column()
+  declare attempts: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare deliveredAt: DateTime | null
+  @column()
+  declare endpointId: string
+  @column()
+  declare eventId: string
+  @column()
+  declare eventType: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare lastError: string | null
+  @column.dateTime()
+  declare nextAttemptAt: DateTime | null
+  @column()
+  declare payload: string
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class WeixinWebhookEndpointSchema extends BaseModel {
+  static $columns = [
+    'accountId',
+    'createdAt',
+    'enabled',
+    'encryptedSecret',
+    'events',
+    'id',
+    'lastDeliveryAt',
+    'updatedAt',
+    'url',
+    'userId',
+  ] as const
+  $columns = WeixinWebhookEndpointSchema.$columns
+  @column()
+  declare accountId: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare enabled: boolean
+  @column()
+  declare encryptedSecret: string
+  @column()
+  declare events: string
+  @column({ isPrimary: true })
+  declare id: string
+  @column.dateTime()
+  declare lastDeliveryAt: DateTime | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+  @column()
+  declare url: string
+  @column()
+  declare userId: number
 }

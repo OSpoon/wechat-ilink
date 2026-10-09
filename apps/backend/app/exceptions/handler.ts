@@ -13,6 +13,23 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    const domainError = error as {
+      status?: unknown
+      code?: unknown
+      message?: unknown
+    }
+    if (
+      typeof domainError.status === 'number' &&
+      typeof domainError.code === 'string' &&
+      !ctx.response.headersSent
+    ) {
+      return ctx.response.status(domainError.status).send({
+        error: {
+          code: domainError.code,
+          message: typeof domainError.message === 'string' ? domainError.message : 'Request failed',
+        },
+      })
+    }
     return super.handle(error, ctx)
   }
 

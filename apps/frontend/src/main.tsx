@@ -7,12 +7,10 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { ClerkProvider } from '@clerk/react'
+import i18n from '@/i18n'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
 import { handleServerError } from '@/lib/handle-server-error'
-import { CLERK_PUBLISHABLE_KEY } from '@/lib/runtime-config'
-import { ClerkSessionBridge } from '@/components/clerk-session-bridge'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
 import { ThemeProvider } from './context/theme-provider'
@@ -45,7 +43,7 @@ const queryClient = new QueryClient({
 
         if (error instanceof AxiosError) {
           if (error.response?.status === 304) {
-            toast.error('Content not modified!')
+            toast.error(i18n.t('Content not modified!'))
           }
         }
       },
@@ -55,17 +53,13 @@ const queryClient = new QueryClient({
     onError: (error) => {
       if (error instanceof AxiosError) {
         if (error.response?.status === 401) {
-          toast.error('Session expired!')
-          const signInRoute =
-            useAuthStore.getState().auth.provider === 'clerk'
-              ? '/clerk/sign-in'
-              : '/sign-in'
+          toast.error(i18n.t('Session expired!'))
           useAuthStore.getState().auth.reset()
           const redirect = `${router.history.location.href}`
-          router.navigate({ to: signInRoute, search: { redirect } })
+          router.navigate({ to: '/sign-in', search: { redirect } })
         }
         if (error.response?.status === 500) {
-          toast.error('Internal Server Error!')
+          toast.error(i18n.t('Internal Server Error!'))
           // Only navigate to error page in production to avoid disrupting HMR in development
           if (import.meta.env.PROD) {
             router.navigate({ to: '/500' })
@@ -104,22 +98,7 @@ if (!rootElement.innerHTML) {
         <ThemeProvider>
           <FontProvider>
             <DirectionProvider>
-              {CLERK_PUBLISHABLE_KEY ? (
-                <ClerkProvider
-                  publishableKey={CLERK_PUBLISHABLE_KEY}
-                  afterSignOutUrl='/sign-in'
-                  signInUrl='/clerk/sign-in'
-                  signUpUrl='/clerk/sign-up'
-                  signInFallbackRedirectUrl='/clerk/complete'
-                  signUpFallbackRedirectUrl='/clerk/complete'
-                >
-                  <ClerkSessionBridge>
-                    <RouterProvider router={router} />
-                  </ClerkSessionBridge>
-                </ClerkProvider>
-              ) : (
-                <RouterProvider router={router} />
-              )}
+              <RouterProvider router={router} />
             </DirectionProvider>
           </FontProvider>
         </ThemeProvider>

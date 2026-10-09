@@ -4,7 +4,8 @@
 
 The repository provides a Docker Compose deployment for a single backend
 replica and a static frontend. The backend uses SQLite, so the deployment
-mounts a named volume at `/app/tmp` and runs database migrations at startup.
+mounts a named volume at `/app/tmp`, persists outbound media under
+`/app/data/media`, and runs database migrations at startup.
 
 ## Publish release images
 
@@ -22,23 +23,24 @@ On the deployment host, install Docker Engine and the Docker Compose plugin.
 For an interactive-free setup with defaults, run the remote installer:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/OSpoon/adonisjs-shadcn-admin/main/deploy/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/OSpoon/wechat-ilink/main/deploy/install.sh | sh
 ```
 
 It downloads the Compose configuration, creates `.env` with a generated
 `APP_KEY`, pulls the images, and starts both services. It installs under
-`/opt/asa` when run as root, or `~/asa` otherwise. Set first-install options
+`/opt/wechat-ilink` when run as root, or `~/wechat-ilink` otherwise. Set first-install options
 on the `sh` side of the pipe, for example:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/OSpoon/adonisjs-shadcn-admin/main/deploy/install.sh | ASA_HTTP_PORT=8081 sh
+curl -fsSL https://raw.githubusercontent.com/OSpoon/wechat-ilink/main/deploy/install.sh | WECHAT_ILINK_HTTP_PORT=8081 sh
 ```
 
-`ASA_INSTALL_DIR`, `ASA_HTTP_PORT`, `ASA_APP_URL`, `ASA_IMAGE_TAG`, and
-`ASA_IMAGE_NAMESPACE` change the install path, public URL, port, and image selection.
-When setting an image tag, the installer downloads Compose files from that
-same tag. Set `ASA_CONFIG_REF` only when the config ref needs to differ from
-the image tag. The installer preserves an existing `.env` when rerun.
+`WECHAT_ILINK_INSTALL_DIR`, `WECHAT_ILINK_HTTP_PORT`, `WECHAT_ILINK_APP_URL`,
+`WECHAT_ILINK_IMAGE_TAG`, and `WECHAT_ILINK_IMAGE_NAMESPACE` change the install
+path, public URL, port, and image selection. When setting an image tag, the
+installer downloads Compose files from that same tag. Set
+`WECHAT_ILINK_CONFIG_REF` only when the config ref needs to differ from the
+image tag. The installer preserves an existing `.env` when rerun.
 
 The published GHCR images are public, so Docker can pull them without registry
 authentication.
@@ -54,8 +56,8 @@ Copy `deploy/.env.example` to `deploy/.env`, then set:
 - `APP_KEY` to a generated, private, stable AdonisJS key
 - `APP_URL` to the public site URL
 - `HTTP_PORT` to the port exposed to the host
-- `CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to enable the optional Clerk provider
-- `CLERK_AUTHORIZED_PARTIES` to the public frontend origin, for example `https://admin.example.com`
+- `ILINK_*` to override the iLink protocol and service URL defaults when needed
+- `MEDIA_STORAGE_PATH` if outbound media should use a custom persistent path
 
 Start the services:
 
@@ -72,14 +74,29 @@ frontend `/healthz` endpoints are used by container health checks.
 
 The `sqlite-data` named volume is the production database. Keep it when
 recreating or updating containers; never run `docker compose down -v` on a
-deployment with data you need. SQLite is intended here for one backend replica
-with persistent local storage. Do not scale the backend across hosts or
-containers sharing a network filesystem.
+deployment with data you need. Keep the `media-data` named volume as well;
+outbound media payloads are stored there for later download. SQLite and local
+media storage are intended for one backend replica. Do not scale the backend
+across hosts or containers sharing a network filesystem.
 
 Back up the database regularly using SQLite's online backup mechanism or a
-quiesced volume snapshot, and store backups outside the host. Verify restore
-procedures before relying on a backup. The application does not automatically
-seed demo records in production.
+quiesced volume snapshot, and back up `media-data` with it. Store backups
+outside the host and verify restore procedures before relying on them.
+
+## Replace the previous WeChat iLink service
+
+To preserve existing WeChat accounts, webhook secrets, message history, and
+media, stop the old service before taking a consistent backup. Copy its SQLite
+database and `data/media` directory into the new deployment's persistent
+storage. Set the new backend's `APP_KEY` to the exact existing value: it is
+needed to decrypt stored WeChat bot tokens, webhook secrets, and conversation
+tokens. Keep the iLink service URL settings compatible with the old service.
+
+The new migrations reuse the old iLink migration identifiers, so startup skips
+tables already present in the copied database and applies the admin-specific
+migrations. Keep both the SQLite and media volumes during future updates.
+If the old `APP_KEY` is unavailable, create fresh QR bindings and webhook
+secrets instead of copying encrypted records that cannot be decrypted.
 
 ## Updates and remaining host setup
 

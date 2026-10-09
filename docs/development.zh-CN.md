@@ -17,13 +17,12 @@ cp apps/backend/.env.example apps/backend/.env
 cp apps/frontend/.env.example apps/frontend/.env
 ```
 
-使用 `pnpm --filter @asa/backend exec node ace generate:key` 生成 AdonisJS 应用密钥，并将其设为 `apps/backend/.env` 中的 `APP_KEY`。`.env` 文件应保存在本地，不要提交其中的内容。
+运行 `pnpm --filter @wechat-ilink/backend exec node ace generate:key` 生成后端应用密钥。AdonisJS 会将密钥写入 `apps/backend/.env`；请保存在本地，不要提交。
 
-应用 SQLite 迁移，并在需要时载入模板演示数据：
+应用 SQLite 迁移并启动应用：
 
 ```sh
-pnpm --filter @asa/backend db:migrate
-pnpm --filter @asa/backend db:seed
+pnpm --filter @wechat-ilink/backend db:migrate
 pnpm dev
 ```
 
@@ -42,10 +41,10 @@ pnpm build
 `pnpm check` 会按顺序运行完整检查。`pnpm format` 会应用格式化。前端测试使用 Playwright Chromium；首次运行时安装浏览器：
 
 ```sh
-pnpm --filter @asa/frontend test:browser:install
+pnpm --filter @wechat-ilink/frontend test:browser:install
 ```
 
-后端测试会迁移并使用 `apps/backend/tmp/db.test.sqlite3`，与开发数据库分离。仓库中的 `.env.test` 会选择内存会话和独立的测试 HTTP 端口。
+后端测试会迁移并使用 `apps/backend/tmp/db.test.sqlite3`，与开发数据库分离。仓库中的 `.env.test` 使用测试专用密钥、内存会话和限流存储、独立 HTTP 端口及媒体目录。
 
 ## 发布
 

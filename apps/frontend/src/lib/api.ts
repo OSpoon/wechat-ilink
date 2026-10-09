@@ -1,44 +1,13 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth-store'
-import type { ApiUser } from '@/lib/api-types'
-import { requestClerkToken } from '@/lib/clerk-session'
-import type { ChatUser } from '@/features/chats/data/chat-types'
-import type { Task } from '@/features/tasks/data/schema'
-import type { User } from '@/features/users/data/schema'
-
-export type IntegrationRecord = {
-  name: string
-  description: string
-  connected: boolean
-}
-
-export type DashboardData = {
-  overview: {
-    revenue: string
-    revenueChange: string
-    subscriptions: string
-    subscriptionsChange: string
-    sales: string
-    salesChange: string
-    activeNow: string
-    activeNowChange: string
-    salesThisMonth: number
-    monthlyRevenue: { name: string; total: number }[]
-    recentSales: {
-      name: string
-      email: string
-      avatar: string
-      initials: string
-      amount: number
-    }[]
-  }
-  analytics: {
-    traffic: { name: string; clicks: number; uniques: number }[]
-    stats: { label: string; value: string; change: string }[]
-    referrers: { name: string; value: number }[]
-    devices: { name: string; value: number }[]
-  }
-}
+import type {
+  ApiUser,
+  WeixinAccount,
+  WeixinLoginSession,
+  WeixinMessage,
+  WeixinWebhook,
+  WeixinWebhookDelivery,
+} from '@/lib/api-types'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api/v1',
@@ -46,8 +15,7 @@ const api = axios.create({
 
 api.interceptors.request.use(async (config) => {
   const { auth } = useAuthStore.getState()
-  const token =
-    auth.provider === 'clerk' ? await requestClerkToken() : auth.accessToken
+  const token = auth.accessToken
   if (token) config.headers.Authorization = `Bearer ${token}`
   else delete config.headers.Authorization
   return config
@@ -80,16 +48,6 @@ async function patch<T>(path: string, body: unknown): Promise<T> {
   return unwrap<T>(response.data)
 }
 
-type TaskInput = Pick<Task, 'title' | 'status' | 'label' | 'priority'>
-type DirectoryUserInput = Pick<
-  User,
-  'firstName' | 'lastName' | 'username' | 'email' | 'phoneNumber' | 'role'
->
-type DirectoryUserCreateInput = DirectoryUserInput & { password: string }
-type DirectoryUserUpdateInput = Partial<DirectoryUserInput> & {
-  password?: string
-}
-
 export const authApi = {
   async login(credentials: { email: string; password: string }) {
     return post<AuthResponse>('/auth/login', credentials)
@@ -114,59 +72,98 @@ export const authApi = {
   },
 }
 
-export const tasksApi = {
-  list: () => get<Task[]>('/tasks'),
-  create: (task: TaskInput) => post<Task>('/tasks', task),
-  bulkCreate: (tasks: TaskInput[]) => post<Task[]>('/tasks/bulk', { tasks }),
-  update: (id: string, task: TaskInput) => patch<Task>(`/tasks/${id}`, task),
-  remove: (id: string) => api.delete(`/tasks/${id}`),
-  bulkUpdate: (
-    ids: string[],
-    changes: { status?: string; priority?: string }
-  ) => patch<{ updated: number }>('/tasks/bulk', { ids, ...changes }),
-  bulkDelete: (ids: string[]) =>
-    post<{ deleted: number }>('/tasks/bulk-delete', { ids }),
-}
-
-export const directoryUsersApi = {
-  list: () => get<User[]>('/directory-users'),
-  create: (user: DirectoryUserCreateInput) =>
-    post<User>('/directory-users', user),
-  invite: (invitation: { email: string; role: string; desc?: string }) =>
-    post<User>('/directory-users/invitations', invitation),
-  update: (id: string, user: DirectoryUserUpdateInput) =>
-    patch<User>(`/directory-users/${id}`, user),
-  remove: (id: string) => api.delete(`/directory-users/${id}`),
-  bulkUpdate: (ids: string[], status: 'active' | 'inactive' | 'invited') =>
-    patch<{ updated: number }>('/directory-users/bulk', { ids, status }),
-  bulkDelete: (ids: string[]) =>
-    post<{ deleted: number }>('/directory-users/bulk-delete', { ids }),
-}
-
-export const integrationsApi = {
-  list: () => get<IntegrationRecord[]>('/integrations'),
-  setConnected: (name: string, connected: boolean) =>
-    patch<IntegrationRecord>(`/integrations/${encodeURIComponent(name)}`, {
-      connected,
-    }),
-}
-
-export const chatsApi = {
-  list: () => get<ChatUser[]>('/chats'),
-  create: (participants: Omit<ChatUser, 'messages'>[]) =>
-    post<ChatUser>('/chats', { participants }),
-  sendMessage: (id: string, message: string) =>
-    post<ChatUser>(`/chats/${id}/messages`, { message }),
-}
-
-export const dashboardApi = {
-  get: () => get<DashboardData>('/dashboard'),
-}
-
 export type SettingsData = Record<string, Record<string, unknown>>
 
 export const settingsApi = {
   get: () => get<SettingsData>('/account/settings'),
   update: (section: string, data: Record<string, unknown>) =>
     patch<SettingsData>(`/account/settings/${section}`, data),
+}
+
+export const weixinApi = {
+  accounts: {
+    list: () => get<WeixinAccount[]>('/weixin/accounts'),
+    get: (accountId: string) =>
+      get<WeixinAccount>(`/weixin/accounts/${accountId}`),
+    start: (accountId: string) =>
+      post<WeixinAccount>(`/weixin/accounts/${accountId}/start`),
+    stop: (accountId: string) =>
+      post<WeixinAccount>(`/weixin/accounts/${accountId}/stop`),
+    remove: (accountId: string) => api.delete(`/weixin/accounts/${accountId}`),
+  },
+  login: {
+    create: () => post<WeixinLoginSession>('/weixin/login-sessions'),
+    get: (sessionId: string) =>
+      get<WeixinLoginSession>(`/weixin/login-sessions/${sessionId}`),
+    verify: (sessionId: string, code: string) =>
+      post<WeixinLoginSession>(`/weixin/login-sessions/${sessionId}/verify`, {
+        code,
+      }),
+    cancel: (sessionId: string) =>
+      api.delete(`/weixin/login-sessions/${sessionId}`),
+  },
+  messages: {
+    list: (accountId: string, limit = 100) =>
+      get<WeixinMessage[]>(
+        `/weixin/accounts/${accountId}/messages?limit=${limit}`
+      ),
+    sendText: (accountId: string, to: string, text: string) =>
+      post<{ id: string; clientMessageId: string; status: string }>(
+        `/weixin/accounts/${accountId}/messages`,
+        { to, text }
+      ),
+    sendMedia: async (
+      accountId: string,
+      payload: {
+        to: string
+        mediaType: 'image' | 'video' | 'file'
+        caption?: string
+        file: File
+      }
+    ) => {
+      const body = new FormData()
+      body.append('to', payload.to)
+      body.append('mediaType', payload.mediaType)
+      if (payload.caption) body.append('caption', payload.caption)
+      body.append('file', payload.file)
+      const response = await api.post<unknown>(
+        `/weixin/accounts/${accountId}/messages/media`,
+        body
+      )
+      return unwrap<{
+        id: string
+        clientMessageId: string
+        mediaType: string
+        status: string
+      }>(response.data)
+    },
+    typing: (accountId: string, to: string, status: 1 | 2) =>
+      post<{ status: number }>(`/weixin/accounts/${accountId}/typing`, {
+        to,
+        status,
+      }),
+    downloadMedia: async (
+      accountId: string,
+      messageId: string,
+      itemIndex: number
+    ) => {
+      const response = await api.get<Blob>(
+        `/weixin/accounts/${accountId}/messages/${messageId}/media/${itemIndex}`,
+        { responseType: 'blob' }
+      )
+      return response.data
+    },
+  },
+  webhooks: {
+    list: () => get<WeixinWebhook[]>('/weixin/webhooks'),
+    create: (payload: {
+      accountId: string
+      url: string
+      secret: string
+      events: string[]
+    }) => post<WeixinWebhook>('/weixin/webhooks', payload),
+    remove: (webhookId: string) => api.delete(`/weixin/webhooks/${webhookId}`),
+    deliveries: (webhookId: string) =>
+      get<WeixinWebhookDelivery[]>(`/weixin/webhooks/${webhookId}/deliveries`),
+  },
 }

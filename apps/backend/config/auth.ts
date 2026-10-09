@@ -2,8 +2,6 @@ import { defineConfig } from '@adonisjs/auth'
 import { sessionGuard, sessionUserProvider } from '@adonisjs/auth/session'
 import { tokensGuard, tokensUserProvider } from '@adonisjs/auth/access_tokens'
 import type { InferAuthenticators, InferAuthEvents, Authenticators } from '@adonisjs/auth/types'
-import { ClerkGuard } from '#auth/guards/clerk'
-import env from '#start/env'
 
 const authConfig = defineConfig({
   /**
@@ -21,19 +19,6 @@ const authConfig = defineConfig({
         model: () => import('#models/user'),
       }),
     }),
-
-    /**
-     * Clerk session tokens are accepted alongside native Adonis access tokens.
-     */
-    clerk: (ctx) =>
-      new ClerkGuard(ctx, {
-        secretKey: env.get('CLERK_SECRET_KEY'),
-        authorizedParties: env
-          .get('CLERK_AUTHORIZED_PARTIES')
-          ?.split(',')
-          .map((party) => party.trim())
-          .filter(Boolean),
-      }),
 
     /**
      * Session-based guard for browser authentication.

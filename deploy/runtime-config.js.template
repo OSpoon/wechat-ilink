@@ -1,3 +1,0 @@
-window.__ASA_CONFIG__ = {
-  clerkPublishableKey: '${CLERK_PUBLISHABLE_KEY}',
-}

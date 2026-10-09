@@ -52,7 +52,7 @@ pnpm build
 ```
 
 Frontend tests use Playwright Chromium. Install it once with
-`pnpm --filter @asa/frontend test:browser:install` when needed.
+`pnpm --filter @wechat-ilink/frontend test:browser:install` when needed.
 Report failed or skipped checks accurately.
 
 ## Git and Delivery

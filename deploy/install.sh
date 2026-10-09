@@ -2,12 +2,12 @@
 
 set -eu
 
-REPOSITORY=OSpoon/adonisjs-shadcn-admin
-IMAGE_NAMESPACE=${ASA_IMAGE_NAMESPACE:-ghcr.io/ospoon/adonisjs-shadcn-admin}
-IMAGE_TAG=${ASA_IMAGE_TAG:-latest}
-HTTP_PORT=${ASA_HTTP_PORT:-8080}
-APP_URL=${ASA_APP_URL:-http://localhost:$HTTP_PORT}
-CONFIG_REF=${ASA_CONFIG_REF:-${ASA_IMAGE_TAG:-main}}
+REPOSITORY=OSpoon/wechat-ilink
+IMAGE_NAMESPACE=${WECHAT_ILINK_IMAGE_NAMESPACE:-ghcr.io/ospoon/wechat-ilink}
+IMAGE_TAG=${WECHAT_ILINK_IMAGE_TAG:-latest}
+HTTP_PORT=${WECHAT_ILINK_HTTP_PORT:-8080}
+APP_URL=${WECHAT_ILINK_APP_URL:-http://localhost:$HTTP_PORT}
+CONFIG_REF=${WECHAT_ILINK_CONFIG_REF:-${WECHAT_ILINK_IMAGE_TAG:-main}}
 
 if [ "$CONFIG_REF" = latest ]; then
   CONFIG_REF=main
@@ -15,35 +15,35 @@ fi
 RAW_BASE="https://raw.githubusercontent.com/$REPOSITORY/$CONFIG_REF/deploy"
 
 fail() {
-  printf 'adonisjs-shadcn-admin installer: %s\n' "$1" >&2
+  printf 'WeChat iLink installer: %s\n' "$1" >&2
   exit 1
 }
 
 case "$IMAGE_NAMESPACE" in
-  ''|*[!A-Za-z0-9./:_-]*) fail 'ASA_IMAGE_NAMESPACE contains unsupported characters.' ;;
+  ''|*[!A-Za-z0-9./:_-]*) fail 'WECHAT_ILINK_IMAGE_NAMESPACE contains unsupported characters.' ;;
 esac
 
 case "$IMAGE_TAG" in
-  ''|*[!A-Za-z0-9_.-]*) fail 'ASA_IMAGE_TAG contains unsupported characters.' ;;
+  ''|*[!A-Za-z0-9_.-]*) fail 'WECHAT_ILINK_IMAGE_TAG contains unsupported characters.' ;;
 esac
 
 case "$CONFIG_REF" in
-  ''|/*|*/|*..*|*[!A-Za-z0-9._/-]*) fail 'ASA_CONFIG_REF contains unsupported characters.' ;;
+  ''|/*|*/|*..*|*[!A-Za-z0-9._/-]*) fail 'WECHAT_ILINK_CONFIG_REF contains unsupported characters.' ;;
 esac
 
 case "$HTTP_PORT" in
-  ''|*[!0-9]*) fail 'ASA_HTTP_PORT must be a number between 1 and 65535.' ;;
+  ''|*[!0-9]*) fail 'WECHAT_ILINK_HTTP_PORT must be a number between 1 and 65535.' ;;
 esac
 
-[ "$HTTP_PORT" -ge 1 ] && [ "$HTTP_PORT" -le 65535 ] ||
-  fail 'ASA_HTTP_PORT must be a number between 1 and 65535.'
+  [ "$HTTP_PORT" -ge 1 ] && [ "$HTTP_PORT" -le 65535 ] ||
+  fail 'WECHAT_ILINK_HTTP_PORT must be a number between 1 and 65535.'
 
-if [ -n "${ASA_INSTALL_DIR:-}" ]; then
-  INSTALL_DIR=$ASA_INSTALL_DIR
+if [ -n "${WECHAT_ILINK_INSTALL_DIR:-}" ]; then
+  INSTALL_DIR=$WECHAT_ILINK_INSTALL_DIR
 elif [ "$(id -u)" -eq 0 ]; then
-  INSTALL_DIR=/opt/asa
+  INSTALL_DIR=/opt/wechat-ilink
 else
-  INSTALL_DIR="${HOME:-.}/asa"
+  INSTALL_DIR="${HOME:-.}/wechat-ilink"
 fi
 
 command -v openssl >/dev/null 2>&1 || fail 'OpenSSL is required to generate APP_KEY.'
@@ -89,7 +89,7 @@ TEMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TEMP_DIR"' 0
 trap 'exit 1' HUP INT TERM
 
-printf 'Downloading adonisjs-shadcn-admin Compose configuration...\n'
+printf 'Downloading WeChat iLink Compose configuration...\n'
 fetch_file "$RAW_BASE/compose.yml" "$TEMP_DIR/compose.yml" ||
   fail 'Could not download deploy/compose.yml from GitHub.'
 fetch_file "$RAW_BASE/.env.example" "$TEMP_DIR/.env.example" ||
@@ -121,7 +121,7 @@ fi
 chmod 600 "$INSTALL_DIR/.env"
 
 cd "$INSTALL_DIR"
-printf 'Pulling adonisjs-shadcn-admin images...\n'
+printf 'Pulling WeChat iLink images...\n'
 if ! run_docker compose --env-file .env -f compose.yml pull; then
   cat >&2 <<EOF
 The configured images could not be pulled. Check IMAGE_NAMESPACE, IMAGE_TAG, network connectivity, and registry access.
@@ -130,9 +130,9 @@ EOF
   exit 1
 fi
 
-printf 'Starting adonisjs-shadcn-admin...\n'
+printf 'Starting WeChat iLink...\n'
 run_docker compose --env-file .env -f compose.yml up -d
 run_docker compose --env-file .env -f compose.yml ps
 
-printf '\nadonisjs-shadcn-admin is running on port %s. Review %s/.env to set APP_URL and optional Clerk keys.\n' \
+printf '\nWeChat iLink is running on port %s. Review %s/.env to set APP_URL.\n' \
   "$HTTP_PORT" "$INSTALL_DIR"

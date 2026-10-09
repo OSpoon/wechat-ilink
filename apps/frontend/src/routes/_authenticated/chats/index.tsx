@@ -1,6 +1,10 @@
+import { z } from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
-import { Chats } from '@/features/chats'
+import { ChatsRoute } from '@/features/chats'
+
+const searchSchema = z.object({ accountId: z.string().optional() })
 
 export const Route = createFileRoute('/_authenticated/chats/')({
-  component: Chats,
+  component: ChatsRoute,
+  validateSearch: searchSchema,
 })

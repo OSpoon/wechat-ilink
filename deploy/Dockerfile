@@ -23,14 +23,22 @@ ENV NODE_ENV=production \
   LOG_LEVEL=info \
   APP_KEY=build-only-placeholder-key \
   APP_URL=http://localhost:3333 \
-  SESSION_DRIVER=memory
+  SESSION_DRIVER=memory \
+  LIMITER_STORE=memory \
+  ILINK_APP_ID=bot \
+  ILINK_APP_CLIENT_VERSION=132104 \
+  ILINK_CHANNEL_VERSION=2.4.8 \
+  ILINK_BOT_AGENT=OpenClaw \
+  ILINK_BASE_URL=https://ilinkai.weixin.qq.com \
+  ILINK_CDN_BASE_URL=https://novac2c.cdn.weixin.qq.com/c2c \
+  ILINK_BOT_TYPE=3
 RUN pnpm codegen \
-  && pnpm --filter @asa/backend build
+  && pnpm --filter @wechat-ilink/backend build
 ENV VITE_API_URL=/api/v1
-RUN pnpm --filter @asa/frontend build
+RUN pnpm --filter @wechat-ilink/frontend build
 
 FROM build AS backend-dependencies
-RUN pnpm deploy --legacy --filter=@asa/backend --prod /out/backend
+RUN pnpm deploy --legacy --filter=@wechat-ilink/backend --prod /out/backend
 
 FROM node:24.15.0-bookworm-slim AS backend
 ENV NODE_ENV=production
@@ -41,7 +49,7 @@ ENV SESSION_DRIVER=memory
 WORKDIR /app
 COPY --from=build --chown=node:node /workspace/apps/backend/build/ /app/
 COPY --from=backend-dependencies --chown=node:node /out/backend/node_modules/ /app/node_modules/
-RUN mkdir -p /app/tmp && chown node:node /app/tmp
+RUN mkdir -p /app/tmp /app/data/media && chown -R node:node /app/tmp /app/data
 COPY --chown=node:node deploy/docker-entrypoint.mjs /app/docker-entrypoint.mjs
 USER node
 EXPOSE 3333
@@ -51,7 +59,6 @@ ENTRYPOINT ["node", "docker-entrypoint.mjs"]
 
 FROM nginx:1.29-alpine AS frontend
 COPY --from=build /workspace/apps/frontend/dist/ /usr/share/nginx/html/
-COPY deploy/runtime-config.js.template /etc/nginx/templates/runtime-config.js.template
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \

@@ -2,24 +2,24 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-AdonisJS API used by the React admin frontend. It provides authentication and the dashboard data APIs, with SQLite persistence through Lucid migrations.
+AdonisJS API used by the React admin and client applications. It provides authentication, account preferences, WeChat iLink QR login, account management, message/media transport, and webhooks, with SQLite persistence through Lucid migrations.
 
 For the full project setup, start with the [root README](../../README.md) and [development guide](../../docs/development.md). Backend-specific rules are in [AGENTS.md](AGENTS.md).
 
 ## Local setup
 
-Run commands from the repository root. Copy `apps/backend/.env.example` to `apps/backend/.env`, generate an application key, and set it as `APP_KEY`:
+From the repository root, copy the examples and generate the backend application key. AdonisJS writes the key directly to `apps/backend/.env`:
 
 ```sh
 cp apps/backend/.env.example apps/backend/.env
-pnpm --filter @asa/backend exec node ace generate:key
+cp apps/frontend/.env.example apps/frontend/.env
+pnpm --filter @wechat-ilink/backend exec node ace generate:key
 ```
 
-Apply migrations, optionally load the demo data, and start the workspace:
+Apply migrations and start the workspace:
 
 ```sh
-pnpm --filter @asa/backend db:migrate
-pnpm --filter @asa/backend db:seed
+pnpm --filter @wechat-ilink/backend db:migrate
 pnpm dev
 ```
 
@@ -27,15 +27,15 @@ The API listens on `http://localhost:3333`. The development database is `apps/ba
 
 ## Configuration
 
-| Variable                   | Purpose                                                                                                       |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `APP_KEY`                  | Required AdonisJS encryption key. Generate a private key for each environment.                                |
-| `HOST`, `PORT`, `APP_URL`  | Bind address, port, and application URL. Defaults are `localhost`, `3333`, and `http://localhost:3333`.       |
-| `LOG_LEVEL`                | Application log verbosity.                                                                                    |
-| `SESSION_DRIVER`           | Session storage driver; local development defaults to `cookie`.                                               |
-| `CORS_ORIGIN`              | Optional allowed origins for a frontend hosted on a separate origin.                                          |
-| `CLERK_SECRET_KEY`         | Optional Clerk Backend API key. Enables Clerk session verification and local user linking.                    |
-| `CLERK_AUTHORIZED_PARTIES` | Optional comma-separated frontend origins checked against Clerk's `azp` token claim. Configure in production. |
+| Variable                  | Purpose                                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `APP_KEY`                 | Required AdonisJS encryption key. Generate a private key for each environment.                          |
+| `HOST`, `PORT`, `APP_URL` | Bind address, port, and application URL. Defaults are `localhost`, `3333`, and `http://localhost:3333`. |
+| `LOG_LEVEL`               | Application log verbosity.                                                                              |
+| `SESSION_DRIVER`          | Session storage driver; local development defaults to `cookie`.                                         |
+| `ILINK_*`                 | iLink protocol client, WeChat service URL, CDN, and bot type; defaults are listed in `.env.example`.    |
+| `LIMITER_STORE`           | Store API rate limits in `database` (SQLite) or `memory`.                                               |
+| `MEDIA_STORAGE_PATH`      | Persistent directory for outbound media files; defaults to `data/media`.                                |
 
 SQLite is the configured local and single-container database. Its path is set in `config/database.ts`; test mode selects the isolated test database automatically.
 
@@ -46,27 +46,26 @@ SQLite is the configured local and single-container database. Its path is set in
 | Health          | `GET /health`                                                                                                                           |
 | Authentication  | `POST /api/v1/auth/signup`, `POST /api/v1/auth/login`                                                                                   |
 | Account         | `GET /api/v1/account/profile`, `POST /api/v1/account/logout`, `GET /api/v1/account/settings`, `PATCH /api/v1/account/settings/:section` |
-| Tasks           | `GET/POST /api/v1/tasks`, bulk create/update/delete, and per-task update/delete                                                         |
-| Directory users | `GET/POST /api/v1/directory-users`, invitation, bulk update/delete, and per-user update/delete                                          |
-| Integrations    | `GET /api/v1/integrations`, `PATCH /api/v1/integrations/:name`                                                                          |
-| Chats           | `GET/POST /api/v1/chats`, `POST /api/v1/chats/:id/messages`                                                                             |
-| Dashboard       | `GET /api/v1/dashboard`                                                                                                                 |
+| WeChat accounts | `/api/v1/weixin/accounts`, `/api/v1/weixin/login-sessions`                                                                              |
+| WeChat messages | `/api/v1/weixin/accounts/:accountId/messages`, `/media`, `/typing`                                                                      |
+| Webhooks        | `/api/v1/weixin/webhooks`, `/api/v1/weixin/webhooks/:webhookId/deliveries`                                                              |
 
-AdonisJS sign-up and login return an access token. Protected routes accept that token or, when Clerk is configured, a verified Clerk session token. Clerk identities are linked to local `users` records by Clerk user ID; verified primary email addresses can link an existing local account. The directory records, integrations, tasks, and conversations loaded by the seeder are demo data; integration state does not configure external services or send email.
+See the [WeChat iLink API guide](../../docs/weixin-api.md) for the full request flow and examples. Interactive OpenAPI docs are served at `/docs`.
+
+Create your account from the frontend sign-up page or `POST /api/v1/auth/signup`, then sign in. Signup and login return an access token; protected routes accept that token.
 
 ## Backend commands
 
 Run from the repository root:
 
-| Command                                   | Description                                           |
-| ----------------------------------------- | ----------------------------------------------------- |
-| `pnpm --filter @asa/backend dev`          | Start only the API with hot reload.                   |
-| `pnpm --filter @asa/backend db:migrate`   | Apply SQLite migrations.                              |
-| `pnpm --filter @asa/backend db:seed`      | Load demo records into empty tables.                  |
-| `pnpm --filter @asa/backend test`         | Run backend tests against the isolated test database. |
-| `pnpm --filter @asa/backend typecheck`    | Generate AdonisJS types and run TypeScript checks.    |
-| `pnpm --filter @asa/backend lint:check`   | Run ESLint with warnings treated as errors.           |
-| `pnpm --filter @asa/backend format:check` | Verify formatting without changing files.             |
-| `pnpm --filter @asa/backend build`        | Build the production API.                             |
+| Command                                            | Description                                           |
+| -------------------------------------------------- | ----------------------------------------------------- |
+| `pnpm --filter @wechat-ilink/backend dev`          | Start only the API with hot reload.                   |
+| `pnpm --filter @wechat-ilink/backend db:migrate`   | Apply SQLite migrations.                              |
+| `pnpm --filter @wechat-ilink/backend test`         | Run backend tests against the isolated test database. |
+| `pnpm --filter @wechat-ilink/backend typecheck`    | Generate AdonisJS types and run TypeScript checks.    |
+| `pnpm --filter @wechat-ilink/backend lint:check`   | Run ESLint with warnings treated as errors.           |
+| `pnpm --filter @wechat-ilink/backend format:check` | Verify formatting without changing files.             |
+| `pnpm --filter @wechat-ilink/backend build`        | Build the production API.                             |
 
 The root `pnpm check` command runs the complete workspace verification sequence.

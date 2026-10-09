@@ -1,19 +1,20 @@
-# adonisjs-shadcn-admin
+# WeChat iLink
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A full-stack admin starter that pairs the [shadcn-admin](https://github.com/satnaing/shadcn-admin) React dashboard with an AdonisJS API and SQLite. The project is a pnpm workspace managed with Turborepo.
+WeChat iLink is a messaging API and administration console built with AdonisJS, React, and SQLite. The project is a pnpm workspace managed with Turborepo, and its React interface extends the [shadcn-admin](https://github.com/satnaing/shadcn-admin) foundation.
 
 ## Features
 
-- Admin dashboard with a responsive sidebar, command search, themes, RTL layout, tables, dialogs, and settings.
-- AdonisJS API for sign-up, sign-in, profile, tasks, directory users, integrations, chats, dashboard data, and account preferences.
-- Optional Clerk sign-in alongside native AdonisJS authentication, with Clerk sessions verified by the API and linked to SQLite users.
-- SQLite persistence through Lucid migrations and seeders.
+- Admin console for a live WeChat dashboard, chats, accounts, webhooks, profile, and appearance settings.
+- AdonisJS API for sign-up, sign-in, account preferences, and the WeChat iLink service.
+- WeChat iLink API for QR account linking, connection controls, message history and delivery, media transfer, typing status, and signed webhooks.
+- The React chat page uses live WeChat messages; account, webhook, delivery, and health views follow the existing admin routes and query patterns.
+- SQLite persistence through Lucid migrations.
 - Shared lint, formatting, TypeScript, test, and build checks, with Git hooks and GitHub Actions CI.
 - Docker Compose deployment with persistent SQLite storage and health checks.
 
-Dashboard profile, task, directory-user, integration, chat, and account views use the local API. Integration cards and seeded directory records are demonstration data; connecting a card does not configure an external service or send invitation email.
+The console keeps the product surfaces used by WeChat iLink: a live account and webhook dashboard, WeChat chats and account management, webhook delivery records, account profile, and appearance settings. Chat history and account data come from the configured iLink service and local SQLite database.
 
 ## Quick start
 
@@ -32,42 +33,39 @@ cp apps/backend/.env.example apps/backend/.env
 cp apps/frontend/.env.example apps/frontend/.env
 ```
 
-Generate an AdonisJS application key:
+Generate the backend application key; AdonisJS writes it directly to
+`apps/backend/.env`:
 
 ```sh
-pnpm --filter @asa/backend exec node ace generate:key
+pnpm --filter @wechat-ilink/backend exec node ace generate:key
 ```
 
-Copy the generated value into `APP_KEY` in `apps/backend/.env`. Keep `.env` files and their secrets local.
+Keep `.env` files and their secrets local.
 
-Create the SQLite schema, load the demo records, and start both apps:
+Create the SQLite schema and start both apps:
 
 ```sh
-pnpm --filter @asa/backend db:migrate
-pnpm --filter @asa/backend db:seed
+pnpm --filter @wechat-ilink/backend db:migrate
 pnpm dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173), then create an account at [http://localhost:5173/sign-up](http://localhost:5173/sign-up). The Vite server proxies `/api` requests to the backend at `http://localhost:3333`. The API health endpoint is [http://localhost:3333/health](http://localhost:3333/health).
 
-The local database is `apps/backend/tmp/db.sqlite3`. The seed command adds 100 tasks, 500 directory users, 15 integrations, and the template chat conversations. It only seeds tables that are empty, so it is safe to rerun during development. Do not load demo records into a production database.
+The local database is `apps/backend/tmp/db.sqlite3`. Migrations create the schema; the project does not populate it with example tasks, users, integrations, or conversations.
+
+WeChat iLink settings are included in `apps/backend/.env.example`. Create an account from the frontend sign-up page, sign in, then scan a QR code from **WeChat Accounts**. API reference is available at `/docs`; see the [WeChat iLink API guide](docs/weixin-api.md) for endpoint usage.
 
 ## Configuration
 
-| File                 | Setting                                      | Purpose                                                                                                       |
-| -------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `apps/backend/.env`  | `APP_KEY`                                    | Required secret used by AdonisJS. Generate a private key for each environment.                                |
-| `apps/backend/.env`  | `HOST`, `PORT`, `APP_URL`                    | Backend bind address and application URL. Defaults are `localhost`, `3333`, and `http://localhost:3333`.      |
-| `apps/backend/.env`  | `LOG_LEVEL`, `SESSION_DRIVER`, `CORS_ORIGIN` | Logging, session storage, and optional allowed origins for cross-origin setups.                               |
-| `apps/backend/.env`  | `CLERK_SECRET_KEY`                           | Optional Clerk Backend API key. Set it to enable Clerk sessions on protected API routes.                      |
-| `apps/backend/.env`  | `CLERK_AUTHORIZED_PARTIES`                   | Optional comma-separated frontend origins allowed to send Clerk session tokens. Set this in production.       |
-| `apps/frontend/.env` | `VITE_API_URL`                               | API base URL; defaults to `/api/v1` for the local proxy and same-origin deployment.                           |
-| `apps/frontend/.env` | `VITE_CLERK_PUBLISHABLE_KEY`                 | Optional Clerk frontend key. Pair it with the backend key to show Clerk sign-in and use Clerk for API access. |
-
-With both Clerk keys configured, the sign-in and sign-up screens offer Clerk as an alternative. Clerk users are
-matched to existing local accounts only when their primary Clerk email is verified; otherwise a local SQLite user
-is created and linked by Clerk user ID. AdonisJS email/password sign-in remains available. For Docker deployments,
-set `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, and `CLERK_AUTHORIZED_PARTIES` in `deploy/.env`.
+| File                                                                 | Setting                               | Purpose                                                                                                  |
+| -------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `apps/backend/.env`                                                  | `APP_KEY`                             | Required secret used by AdonisJS. Generate a private key for each environment.                           |
+| `apps/backend/.env`                                                  | `HOST`, `PORT`, `APP_URL`             | Backend bind address and application URL. Defaults are `localhost`, `3333`, and `http://localhost:3333`. |
+| `apps/backend/.env`                                                  | `LOG_LEVEL`, `SESSION_DRIVER`         | Logging and session storage. The Vite proxy avoids cross-origin requests in local development.           |
+| `apps/backend/.env`                                                  | `ILINK_*`                             | iLink protocol client, service URLs, and media CDN settings; the example file provides defaults.         |
+| `apps/backend/.env`                                                  | `LIMITER_STORE`, `MEDIA_STORAGE_PATH` | API rate-limit storage and the persistent local-media directory.                                         |
+| `apps/frontend/.env`                                                 | `VITE_API_URL`                        | API base URL; defaults to `/api/v1` for the local proxy and same-origin deployment.                      |
+| AdonisJS email and password authentication is used for all accounts. |
 
 For Docker deployment, use the installer below or follow the [manual deployment guide](docs/deployment.md). Never commit environment files, credentials, or local SQLite databases.
 
@@ -76,22 +74,22 @@ For Docker deployment, use the installer below or follow the [manual deployment 
 On a host with Docker Engine and the Docker Compose plugin, run:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/OSpoon/adonisjs-shadcn-admin/main/deploy/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/OSpoon/wechat-ilink/main/deploy/install.sh | sh
 ```
 
-The installer downloads the Compose files, generates a private `APP_KEY`, and starts the frontend and backend. It defaults to port `8080` and installs under `/opt/asa` as root or `~/asa` otherwise. The published GHCR images are public and can be pulled without logging in. Set `ASA_APP_URL` on the `sh` side of the pipe to configure a public site URL. See the [deployment guide](docs/deployment.md) for configuration and updates.
+The installer downloads the Compose files, generates a private `APP_KEY`, and starts the frontend and backend. It defaults to port `8080` and installs under `/opt/wechat-ilink` as root or `~/wechat-ilink` otherwise. The published GHCR images are public and can be pulled without logging in. Set `WECHAT_ILINK_APP_URL` on the `sh` side of the pipe to configure a public site URL. See the [deployment guide](docs/deployment.md) for configuration and updates.
 
 VS Code project settings enable ESLint and Prettier integration and recommend the relevant extensions through `.vscode/`.
 
 ## Development commands
 
-| Command                                            | Description                                                      |
-| -------------------------------------------------- | ---------------------------------------------------------------- |
-| `pnpm dev`                                         | Start the backend and frontend in watch mode.                    |
-| `pnpm check`                                       | Run lint, formatting, type checks, tests, and production builds. |
-| `pnpm --filter @asa/backend db:migrate`            | Apply local database migrations.                                 |
-| `pnpm --filter @asa/backend db:seed`               | Load development demo data.                                      |
-| `pnpm --filter @asa/frontend test:browser:install` | Install Chromium for frontend browser tests.                     |
+| Command                                                     | Description                                                      |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| `pnpm dev`                                                  | Start the backend and frontend in watch mode.                    |
+| `pnpm check`                                                | Run lint, formatting, type checks, tests, and production builds. |
+| `pnpm --filter @wechat-ilink/backend db:migrate`            | Apply local database migrations.                                 |
+| `pnpm --filter @wechat-ilink/backend typecheck`             | Generate AdonisJS types and check backend TypeScript.            |
+| `pnpm --filter @wechat-ilink/frontend test:browser:install` | Install Chromium for frontend browser tests.                     |
 
 Backend tests use a separate SQLite database at `apps/backend/tmp/db.test.sqlite3`.
 
@@ -103,6 +101,6 @@ See [development and release instructions](docs/development.md) and the [deploym
 
 ## Project structure
 
-The [backend workspace](apps/backend/README.md) contains the AdonisJS API, SQLite migrations, seeders, and tests. The [frontend workspace](apps/frontend/README.md) contains the React dashboard based on satnaing/shadcn-admin. Docker assets live in `deploy/`, with project guides in `docs/`.
+The [backend workspace](apps/backend/README.md) contains the AdonisJS API, SQLite migrations, and tests. The [frontend workspace](apps/frontend/README.md) contains the React console. Docker assets live in `deploy/`, with project guides in `docs/`.
 
 Project-wide engineering rules are in [AGENTS.md](AGENTS.md), with backend and frontend addenda in their respective app directories. Third-party license terms are recorded in [apps/frontend/LICENSE](apps/frontend/LICENSE).

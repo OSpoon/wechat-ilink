@@ -18,16 +18,14 @@ cp apps/backend/.env.example apps/backend/.env
 cp apps/frontend/.env.example apps/frontend/.env
 ```
 
-Generate an AdonisJS application key with `pnpm --filter
-@asa/backend exec node ace generate:key`, then set the generated
-value as `APP_KEY` in `apps/backend/.env`. Keep `.env` files local and never
-commit their contents.
+Generate the backend application key with `pnpm --filter
+@wechat-ilink/backend exec node ace generate:key`. AdonisJS writes the key to
+`apps/backend/.env`; keep it local and never commit it.
 
-Apply the SQLite migrations and load the template demo data when needed:
+Apply the SQLite migrations and start the applications:
 
 ```sh
-pnpm --filter @asa/backend db:migrate
-pnpm --filter @asa/backend db:seed
+pnpm --filter @wechat-ilink/backend db:migrate
 pnpm dev
 ```
 
@@ -48,12 +46,13 @@ pnpm build
 Frontend tests run in Playwright Chromium; install the browser once with:
 
 ```sh
-pnpm --filter @asa/frontend test:browser:install
+pnpm --filter @wechat-ilink/frontend test:browser:install
 ```
 
 Backend tests migrate and use `apps/backend/tmp/db.test.sqlite3`, separate from
-the development database. The checked-in `.env.test` selects an in-memory
-session and a separate test HTTP port.
+the development database. The checked-in `.env.test` selects a test-only key,
+in-memory session and rate-limit stores, a separate HTTP port, and a separate
+media directory.
 
 ## Release
 

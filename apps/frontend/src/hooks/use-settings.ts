@@ -11,6 +11,7 @@ export function useSettingsQuery() {
 export function useSaveSettings() {
   const queryClient = useQueryClient()
   return useMutation({
+    scope: { id: 'account-settings' },
     mutationFn: ({
       section,
       data,

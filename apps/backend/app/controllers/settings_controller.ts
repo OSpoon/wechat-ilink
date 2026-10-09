@@ -6,57 +6,35 @@ import type { HttpContext } from '@adonisjs/core/http'
 const settingsValidators = {
   account: vine.create({
     name: vine.string().trim().minLength(2).maxLength(30),
-    dob: vine.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    language: vine.enum(['en', 'fr', 'de', 'es', 'pt', 'ru', 'ja', 'ko', 'zh'] as const),
-  }),
-  profile: vine.create({
-    username: vine.string().trim().minLength(2).maxLength(30),
-    email: vine.string().trim().email(),
-    bio: vine.string().trim().minLength(4).maxLength(160),
-    urls: vine.array(vine.object({ value: vine.string().url() })).optional(),
   }),
   appearance: vine.create({
-    theme: vine.enum(['light', 'dark'] as const),
-    font: vine.string().trim().minLength(1).maxLength(100),
-  }),
-  display: vine.create({
-    items: vine
-      .array(
-        vine.enum(['recents', 'home', 'applications', 'desktop', 'downloads', 'documents'] as const)
-      )
-      .minLength(1),
-  }),
-  notifications: vine.create({
-    type: vine.enum(['all', 'mentions', 'none'] as const),
-    mobile: vine.boolean().optional(),
-    communication_emails: vine.boolean().optional(),
-    social_emails: vine.boolean().optional(),
-    marketing_emails: vine.boolean().optional(),
-    security_emails: vine.boolean(),
+    theme: vine.enum(['light', 'dark', 'system'] as const).optional(),
+    font: vine.string().trim().minLength(1).maxLength(100).optional(),
   }),
 }
 
-type Settings = Record<string, Record<string, unknown>>
+type ThemePreference = 'light' | 'dark' | 'system'
 
-function defaults(user: User): Settings {
-  const displayName = user.fullName || 'Admin User'
+type Settings = {
+  account: { name: string }
+  appearance: { theme: ThemePreference; font: string }
+}
+
+function normalizeSettings(user: User, value: unknown): Settings {
+  const stored = value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+  const appearance =
+    stored.appearance && typeof stored.appearance === 'object'
+      ? (stored.appearance as Record<string, unknown>)
+      : {}
+
   return {
-    account: { name: displayName, dob: '1990-01-01', language: 'en' },
-    profile: {
-      username: 'shadcn',
-      email: 'm@example.com',
-      bio: 'I own a computer.',
-      urls: [{ value: 'https://shadcn.com' }, { value: 'http://twitter.com/shadcn' }],
-    },
-    appearance: { theme: 'light', font: 'inter' },
-    display: { items: ['recents', 'home'] },
-    notifications: {
-      type: 'all',
-      mobile: false,
-      communication_emails: false,
-      social_emails: true,
-      marketing_emails: false,
-      security_emails: true,
+    account: { name: user.fullName || '' },
+    appearance: {
+      theme:
+        appearance.theme === 'light' || appearance.theme === 'dark' || appearance.theme === 'system'
+          ? appearance.theme
+          : 'system',
+      font: typeof appearance.font === 'string' ? appearance.font : 'inter',
     },
   }
 }
@@ -66,7 +44,7 @@ async function getOrCreateSettings(user: User) {
   if (!row) {
     row = await UserSettings.create({
       userId: user.id,
-      settings: JSON.stringify(defaults(user)),
+      settings: JSON.stringify(normalizeSettings(user, null)),
     })
   }
   return row
@@ -76,7 +54,13 @@ export default class SettingsController {
   async show({ auth }: HttpContext) {
     const user = auth.getUserOrFail()
     const row = await getOrCreateSettings(user)
-    return { data: JSON.parse(row.settings) as Settings }
+    const settings = normalizeSettings(user, JSON.parse(row.settings) as unknown)
+    const serialized = JSON.stringify(settings)
+    if (row.settings !== serialized) {
+      row.settings = serialized
+      await row.save()
+    }
+    return { data: settings }
   }
 
   async update({ auth, params, request, response }: HttpContext) {
@@ -88,30 +72,33 @@ export default class SettingsController {
       case 'account':
         sectionData = await request.validateUsing(settingsValidators.account)
         break
-      case 'profile':
-        sectionData = await request.validateUsing(settingsValidators.profile)
-        break
       case 'appearance':
-        sectionData = await request.validateUsing(settingsValidators.appearance)
-        break
-      case 'display':
-        sectionData = await request.validateUsing(settingsValidators.display)
-        break
-      case 'notifications':
-        sectionData = await request.validateUsing(settingsValidators.notifications)
+        sectionData = Object.fromEntries(
+          Object.entries(await request.validateUsing(settingsValidators.appearance)).filter(
+            ([, value]) => value !== undefined
+          )
+        )
+        if (!Object.keys(sectionData).length) {
+          return response.badRequest({ message: 'At least one setting is required' })
+        }
         break
       default:
         return response.notFound({ message: 'Settings section not found' })
     }
+
     const row = await getOrCreateSettings(user)
-    const settings = JSON.parse(row.settings) as Settings
-    settings[section] = sectionData
+    const settings = normalizeSettings(user, JSON.parse(row.settings) as unknown)
+    if (section === 'account') {
+      settings.account = sectionData as Settings['account']
+      await user.merge({ fullName: settings.account.name }).save()
+    } else {
+      settings.appearance = {
+        ...settings.appearance,
+        ...sectionData,
+      } as Settings['appearance']
+    }
     row.settings = JSON.stringify(settings)
     await row.save()
-
-    if (section === 'account') {
-      await user.merge({ fullName: (sectionData as { name: string }).name }).save()
-    }
 
     return { data: settings }
   }

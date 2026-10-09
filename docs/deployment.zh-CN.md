@@ -2,7 +2,7 @@
 
 [English](deployment.md) | [简体中文](deployment.zh-CN.md)
 
-仓库提供 Docker Compose 部署配置，包含一个后端实例和静态前端。后端使用 SQLite，Compose 会将具名卷挂载到 `/app/tmp`；后端启动前会运行数据库迁移。
+仓库提供 Docker Compose 部署配置，包含一个后端实例和静态前端。后端使用 SQLite，Compose 会将具名卷挂载到 `/app/tmp`，并将已发送媒体持久化到 `/app/data/media`；后端启动前会运行数据库迁移。
 
 ## 发布镜像
 
@@ -16,16 +16,16 @@ GitHub Actions 会在向 `main` 推送提交或创建 Pull Request 时运行检�
 在部署主机上安装 Docker Engine 和 Docker Compose 插件。使用默认配置进行免交互安装：
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/OSpoon/adonisjs-shadcn-admin/main/deploy/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/OSpoon/wechat-ilink/main/deploy/install.sh | sh
 ```
 
-安装器会下载 Compose 配置、生成 `APP_KEY`、拉取镜像并启动前后端。root 用户默认安装到 `/opt/asa`，普通用户默认安装到 `~/asa`。要在首次安装时修改选项，请在管道中的 `sh` 端设置变量，例如：
+安装器会下载 Compose 配置、生成 `APP_KEY`、拉取镜像并启动前后端。root 用户默认安装到 `/opt/wechat-ilink`，普通用户默认安装到 `~/wechat-ilink`。要在首次安装时修改选项，请在管道中的 `sh` 端设置变量，例如：
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/OSpoon/adonisjs-shadcn-admin/main/deploy/install.sh | ASA_HTTP_PORT=8081 sh
+curl -fsSL https://raw.githubusercontent.com/OSpoon/wechat-ilink/main/deploy/install.sh | WECHAT_ILINK_HTTP_PORT=8081 sh
 ```
 
-`ASA_INSTALL_DIR`、`ASA_HTTP_PORT`、`ASA_APP_URL`、`ASA_IMAGE_TAG` 和 `ASA_IMAGE_NAMESPACE` 分别用于设置安装目录、公开 URL、端口和镜像。设置镜像 tag 后，安装器会从同一个 tag 下载 Compose 文件。只有在配置版本需要与镜像 tag 不同时才设置 `ASA_CONFIG_REF`。再次运行安装器时，现有 `.env` 会保留。
+`WECHAT_ILINK_INSTALL_DIR`、`WECHAT_ILINK_HTTP_PORT`、`WECHAT_ILINK_APP_URL`、`WECHAT_ILINK_IMAGE_TAG` 和 `WECHAT_ILINK_IMAGE_NAMESPACE` 分别用于设置安装目录、公开 URL、端口和镜像。设置镜像 tag 后，安装器会从同一个 tag 下载 Compose 文件。只有在配置版本需要与镜像 tag 不同时才设置 `WECHAT_ILINK_CONFIG_REF`。再次运行安装器时，现有 `.env` 会保留。
 
 GHCR 镜像为公开包，Docker 无需登录即可拉取。
 
@@ -40,8 +40,8 @@ GHCR 镜像为公开包，Docker 无需登录即可拉取。
 - `APP_KEY`：生成的、私有且稳定的 AdonisJS 密钥
 - `APP_URL`：公开站点 URL
 - `HTTP_PORT`：映射到主机的端口
-- `CLERK_PUBLISHABLE_KEY` 和 `CLERK_SECRET_KEY`：启用可选 Clerk 登录
-- `CLERK_AUTHORIZED_PARTIES`：前端公开来源，例如 `https://admin.example.com`
+- `ILINK_*`：按需覆盖 iLink 协议和微信服务地址默认值
+- `MEDIA_STORAGE_PATH`：需要自定义媒体持久化路径时设置
 
 拉取镜像并启动服务：
 
@@ -54,9 +54,15 @@ docker compose --env-file deploy/.env -f deploy/compose.yml up -d
 
 ## SQLite 操作
 
-`sqlite-data` 具名卷保存生产数据库。重建或更新容器时请保留该卷；如果数据需要保留，不要运行 `docker compose down -v`。此处的 SQLite 部署适用于单个后端实例和持久化本地存储。不要在多个主机或共享网络文件系统的容器间扩展后端实例。
+`sqlite-data` 具名卷保存生产数据库。重建或更新容器时请保留该卷；如果数据需要保留，不要运行 `docker compose down -v`。同时保留 `media-data` 卷，其中存放可供下载的出站媒体。SQLite 和本地媒体存储适用于单个后端实例，不要在多个主机或共享网络文件系统的容器间扩展后端实例。
 
-请定期使用 SQLite 在线备份机制或停止写入后的卷快照备份数据库，并将备份存放在主机之外。正式依赖备份前，应先验证恢复流程。生产环境不会自动添加演示数据。
+请定期使用 SQLite 在线备份机制或停止写入后的卷快照备份数据库，并同时备份 `media-data`，将备份存放在主机之外。正式依赖备份前，应先验证恢复流程。
+
+## 替换旧版微信 iLink 服务
+
+需要保留微信账号、Webhook 密钥、消息历史和媒体时，请先停止旧服务，再做一致性备份。将旧服务的 SQLite 数据库和 `data/media` 目录复制到新部署的持久化存储中。新后端的 `APP_KEY` 必须使用旧服务的原值，用于解密已保存的微信 bot token、Webhook 密钥和会话上下文令牌；iLink 服务地址配置也应与旧服务保持兼容。
+
+新迁移沿用旧 iLink migration 标识，因此复制旧数据库后，启动迁移会跳过已有的 iLink 表，并应用新管理端所需的迁移。后续更新时继续保留 SQLite 和媒体卷。如果旧 `APP_KEY` 已丢失，请重新扫码绑定微信账号并重新创建 Webhook，不要复制无法解密的加密记录。
 
 ## 更新与主机设置
 

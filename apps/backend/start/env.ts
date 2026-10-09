@@ -18,6 +18,15 @@ export default await Env.create(new URL('../', import.meta.url), {
   HOST: Env.schema.string({ format: 'host' }),
   LOG_LEVEL: Env.schema.string(),
 
+  // WeChat iLink connection settings
+  LIMITER_STORE: Env.schema.enum(['database', 'memory'] as const),
+  ILINK_APP_ID: Env.schema.string(),
+  ILINK_APP_CLIENT_VERSION: Env.schema.string(),
+  ILINK_CHANNEL_VERSION: Env.schema.string(),
+  ILINK_BOT_AGENT: Env.schema.string(),
+  ILINK_BASE_URL: Env.schema.string(),
+  ILINK_CDN_BASE_URL: Env.schema.string(),
+  ILINK_BOT_TYPE: Env.schema.string(),
   // App
   APP_KEY: Env.schema.secret(),
   APP_URL: Env.schema.string({ format: 'url', tld: false }),
@@ -25,7 +34,5 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Session
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'database'] as const),
 
-  // Optional Clerk authentication
-  CLERK_SECRET_KEY: Env.schema.string.optional(),
-  CLERK_AUTHORIZED_PARTIES: Env.schema.string.optional(),
+  MEDIA_STORAGE_PATH: Env.schema.string.optional(),
 })

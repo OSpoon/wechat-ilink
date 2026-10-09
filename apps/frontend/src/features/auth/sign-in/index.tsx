@@ -1,61 +1,41 @@
 import { Link, useSearch } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
 import { AuthLayout } from '../auth-layout'
-import { ClerkAuthLink } from '../clerk-auth-link'
 import { UserAuthForm } from './components/user-auth-form'
 
 export function SignIn() {
+  const { t } = useTranslation()
   const { redirect } = useSearch({ from: '/(auth)/sign-in' })
 
   return (
     <AuthLayout>
-      <Card className='max-w-sm gap-4'>
+      <Card className='w-full max-w-md gap-4'>
         <CardHeader>
-          <CardTitle className='text-lg tracking-tight'>Sign in</CardTitle>
+          <CardTitle className='text-lg tracking-tight'>
+            {t('Sign in')}
+          </CardTitle>
           <CardDescription>
-            Enter your email and password below to log into{' '}
-            <br className='max-sm:hidden' /> your account. Don't have an
-            account?{' '}
+            {t('Enter your email and password below to log into your account.')}{' '}
+            <br className='max-sm:hidden' />
+            {t("Don't have an account?")}{' '}
             <Link
               to='/sign-up'
               className='text-nowrap underline underline-offset-4 hover:text-primary'
             >
-              Sign Up
+              {t('Sign Up')}
             </Link>
           </CardDescription>
         </CardHeader>
         <CardContent>
           <UserAuthForm redirectTo={redirect} />
-          <div className='mt-4'>
-            <ClerkAuthLink mode='sign-in' />
-          </div>
         </CardContent>
-        <CardFooter>
-          <p className='px-8 text-center text-sm text-muted-foreground'>
-            By clicking sign in, you agree to our{' '}
-            <a
-              href='/terms'
-              className='underline underline-offset-4 hover:text-primary'
-            >
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a
-              href='/privacy'
-              className='underline underline-offset-4 hover:text-primary'
-            >
-              Privacy Policy
-            </a>
-            .
-          </p>
-        </CardFooter>
       </Card>
     </AuthLayout>
   )

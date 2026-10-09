@@ -52,7 +52,10 @@ export default defineConfig({
     () => import('@adonisjs/lucid/database_provider'),
     () => import('@adonisjs/cors/cors_provider'),
     () => import('@adonisjs/auth/auth_provider'),
+    () => import('@adonisjs/limiter/limiter_provider'),
+    () => import('@foadonis/openapi/openapi_provider'),
     () => import('#providers/api_provider'),
+    () => import('#providers/weixin_provider'),
   ],
 
   /*
@@ -103,7 +106,20 @@ export default defineConfig({
   | the production build.
   |
   */
-  metaFiles: ['database/fixtures/*.json'],
+  metaFiles: [
+    {
+      pattern: 'database/migrations/**/*.ts',
+      reloadServer: false,
+    },
+    {
+      pattern: 'database/schema_rules.ts',
+      reloadServer: false,
+    },
+    {
+      pattern: 'database/fixtures/*.json',
+      reloadServer: false,
+    },
+  ],
 
   hooks: {
     init: [

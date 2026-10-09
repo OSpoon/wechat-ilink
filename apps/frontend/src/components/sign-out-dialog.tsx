@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
 import { authApi } from '@/lib/api'
-import { signOutOfClerk } from '@/lib/clerk-session'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
 interface SignOutDialogProps {
@@ -10,23 +10,16 @@ interface SignOutDialogProps {
 }
 
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { auth } = useAuthStore()
 
   const handleSignOut = async () => {
-    if (auth.provider === 'clerk') {
-      try {
-        await signOutOfClerk()
-      } catch {
-        // Clear the local profile even if Clerk has already expired the session.
-      }
-    } else {
-      try {
-        await authApi.logout()
-      } catch {
-        // Clear the local session even if the API token has already expired.
-      }
+    try {
+      await authApi.logout()
+    } catch {
+      // Clear the local session even if the API token has already expired.
     }
     auth.reset()
     // Preserve current location for redirect after sign-in
@@ -42,9 +35,11 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title='Sign out'
-      desc='Are you sure you want to sign out? You will need to sign in again to access your account.'
-      confirmText='Sign out'
+      title={t('Sign out')}
+      desc={t(
+        'Are you sure you want to sign out? You will need to sign in again to access your account.'
+      )}
+      confirmText={t('Sign out')}
       destructive
       handleConfirm={handleSignOut}
       className='sm:max-w-sm'

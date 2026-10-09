@@ -110,10 +110,10 @@ describe('ConfirmDialog', () => {
       <ConfirmDialog
         open
         onOpenChange={vi.fn()}
-        title='Delete tasks'
-        form='tasks-multi-delete-form'
+        title='Delete records'
+        form='delete-records-form'
         desc={
-          <form id='tasks-multi-delete-form' className='space-y-4'>
+          <form id='delete-records-form' className='space-y-4'>
             <p>Type DELETE to confirm.</p>
           </form>
         }
@@ -126,7 +126,7 @@ describe('ConfirmDialog', () => {
     await expect.element(deleteBtn).toHaveAttribute('type', 'submit')
     await expect
       .element(deleteBtn)
-      .toHaveAttribute('form', 'tasks-multi-delete-form')
+      .toHaveAttribute('form', 'delete-records-form')
   })
 
   it('submits the desc form when confirm is clicked (form prop, no handleConfirm)', async () => {

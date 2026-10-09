@@ -65,7 +65,7 @@ jobs:
         run: pnpm typecheck
 
       - name: Install Chromium for frontend tests
-        run: pnpm --filter @asa/frontend test:browser:install
+        run: pnpm --filter @wechat-ilink/frontend test:browser:install
 
       - name: Run backend and frontend tests
         run: pnpm test

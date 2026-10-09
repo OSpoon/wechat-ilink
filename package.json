@@ -1,9 +1,9 @@
 {
-  "name": "asa",
+  "name": "wechat-ilink",
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "A batteries-included AdonisJS starter kit for building modern APIs with type-safe frontend integration",
+  "description": "WeChat iLink messaging API and administration console",
   "license": "MIT",
   "engines": {
     "node": "24.15.0"

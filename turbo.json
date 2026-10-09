@@ -13,8 +13,16 @@
         "PORT",
         "LOG_LEVEL",
         "SESSION_DRIVER",
-        "VITE_API_URL",
-        "VITE_CLERK_PUBLISHABLE_KEY"
+        "LIMITER_STORE",
+        "ILINK_APP_ID",
+        "ILINK_APP_CLIENT_VERSION",
+        "ILINK_CHANNEL_VERSION",
+        "ILINK_BOT_AGENT",
+        "ILINK_BASE_URL",
+        "ILINK_CDN_BASE_URL",
+        "ILINK_BOT_TYPE",
+        "MEDIA_STORAGE_PATH",
+        "VITE_API_URL"
       ]
     },
     "dev": {
@@ -30,7 +38,16 @@
         "HOST",
         "PORT",
         "LOG_LEVEL",
-        "SESSION_DRIVER"
+        "SESSION_DRIVER",
+        "LIMITER_STORE",
+        "ILINK_APP_ID",
+        "ILINK_APP_CLIENT_VERSION",
+        "ILINK_CHANNEL_VERSION",
+        "ILINK_BOT_AGENT",
+        "ILINK_BASE_URL",
+        "ILINK_CDN_BASE_URL",
+        "ILINK_BOT_TYPE",
+        "MEDIA_STORAGE_PATH"
       ]
     },
     "test": {
@@ -43,7 +60,16 @@
         "HOST",
         "PORT",
         "LOG_LEVEL",
-        "SESSION_DRIVER"
+        "SESSION_DRIVER",
+        "LIMITER_STORE",
+        "ILINK_APP_ID",
+        "ILINK_APP_CLIENT_VERSION",
+        "ILINK_CHANNEL_VERSION",
+        "ILINK_BOT_AGENT",
+        "ILINK_BASE_URL",
+        "ILINK_CDN_BASE_URL",
+        "ILINK_BOT_TYPE",
+        "MEDIA_STORAGE_PATH"
       ]
     },
     "lint:check": {
@@ -67,7 +93,16 @@
         "HOST",
         "PORT",
         "LOG_LEVEL",
-        "SESSION_DRIVER"
+        "SESSION_DRIVER",
+        "LIMITER_STORE",
+        "ILINK_APP_ID",
+        "ILINK_APP_CLIENT_VERSION",
+        "ILINK_CHANNEL_VERSION",
+        "ILINK_BOT_AGENT",
+        "ILINK_BASE_URL",
+        "ILINK_CDN_BASE_URL",
+        "ILINK_BOT_TYPE",
+        "MEDIA_STORAGE_PATH"
       ]
     }
   }

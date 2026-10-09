@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { clearCookies } from '@/test-utils/cookies'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, type RenderResult } from 'vitest-browser-react'
@@ -14,16 +15,25 @@ async function renderConfigDrawer({
 }: {
   sidebarDefaultOpen?: boolean
 } = {}) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+
   return await render(
-    <DirectionProvider>
-      <ThemeProvider>
-        <LayoutProvider>
-          <SidebarProvider defaultOpen={sidebarDefaultOpen}>
-            <ConfigDrawer />
-          </SidebarProvider>
-        </LayoutProvider>
-      </ThemeProvider>
-    </DirectionProvider>
+    <QueryClientProvider client={queryClient}>
+      <DirectionProvider>
+        <ThemeProvider>
+          <LayoutProvider>
+            <SidebarProvider defaultOpen={sidebarDefaultOpen}>
+              <ConfigDrawer />
+            </SidebarProvider>
+          </LayoutProvider>
+        </ThemeProvider>
+      </DirectionProvider>
+    </QueryClientProvider>
   )
 }
 

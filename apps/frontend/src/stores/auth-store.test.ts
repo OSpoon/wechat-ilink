@@ -51,17 +51,6 @@ describe('useAuthStore', () => {
     expect(useAuthStoreAfterReload.getState().auth.accessToken).toBe('')
   })
 
-  it('persists the Clerk provider without storing its session token', async () => {
-    const useAuthStore = await importAuthStore()
-    useAuthStore.getState().auth.setProvider('clerk')
-
-    vi.resetModules()
-    const useAuthStoreAfterReload = await importAuthStore()
-
-    expect(useAuthStoreAfterReload.getState().auth.provider).toBe('clerk')
-    expect(useAuthStoreAfterReload.getState().auth.accessToken).toBe('')
-  })
-
   it('updates the signed-in user via setUser', async () => {
     const useAuthStore = await importAuthStore()
 
@@ -79,7 +68,6 @@ describe('useAuthStore', () => {
 
     expect(useAuthStore.getState().auth.user).toBeNull()
     expect(useAuthStore.getState().auth.accessToken).toBe('')
-    expect(useAuthStore.getState().auth.provider).toBeNull()
 
     vi.resetModules()
     const useAuthStoreAfterReload = await importAuthStore()

@@ -1,4 +1,5 @@
 import { AxiosError } from 'axios'
+import i18n from '@/i18n'
 import { toast } from 'sonner'
 
 export function handleServerError(error: unknown) {
@@ -36,5 +37,5 @@ export function handleServerError(error: unknown) {
     }
   }
 
-  toast.error(errMsg)
+  toast.error(i18n.t(errMsg))
 }

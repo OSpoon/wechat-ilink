@@ -7,14 +7,22 @@ services:
       HOST: 0.0.0.0
       PORT: 3333
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      LIMITER_STORE: ${LIMITER_STORE:-database}
+      ILINK_APP_ID: ${ILINK_APP_ID:-bot}
+      ILINK_APP_CLIENT_VERSION: ${ILINK_APP_CLIENT_VERSION:-132104}
+      ILINK_CHANNEL_VERSION: ${ILINK_CHANNEL_VERSION:-2.4.8}
+      ILINK_BOT_AGENT: ${ILINK_BOT_AGENT:-OpenClaw}
+      ILINK_BASE_URL: ${ILINK_BASE_URL:-https://ilinkai.weixin.qq.com}
+      ILINK_CDN_BASE_URL: ${ILINK_CDN_BASE_URL:-https://novac2c.cdn.weixin.qq.com/c2c}
+      ILINK_BOT_TYPE: ${ILINK_BOT_TYPE:-3}
+      MEDIA_STORAGE_PATH: ${MEDIA_STORAGE_PATH:-data/media}
       APP_KEY: ${APP_KEY:?set APP_KEY in deploy/.env}
       APP_URL: ${APP_URL:-http://localhost:8080}
       SESSION_DRIVER: memory
       MIGRATE: 'true'
-      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:-}
-      CLERK_AUTHORIZED_PARTIES: ${CLERK_AUTHORIZED_PARTIES:-}
     volumes:
       - sqlite-data:/app/tmp
+      - media-data:/app/data/media
     expose:
       - '3333'
     healthcheck:
@@ -31,9 +39,6 @@ services:
   frontend:
     image: ${IMAGE_NAMESPACE:?set IMAGE_NAMESPACE in deploy/.env}-frontend:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    environment:
-      CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY:-}
-      NGINX_ENVSUBST_OUTPUT_DIR: /usr/share/nginx/html
     ports:
       - '${HTTP_PORT:-8080}:80'
     depends_on:
@@ -42,3 +47,4 @@ services:
 
 volumes:
   sqlite-data:
+  media-data:

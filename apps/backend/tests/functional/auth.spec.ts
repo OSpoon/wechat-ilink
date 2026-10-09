@@ -5,8 +5,8 @@ import { test } from '@japa/runner'
 test.group('authentication API', (group) => {
   group.each.setup(() => testUtils.db().wrapInGlobalTransaction())
 
-  test('rejects access to protected demo data without a token', async ({ client }) => {
-    const response = await client.get('/api/v1/tasks')
+  test('rejects access to WeChat accounts without a token', async ({ client }) => {
+    const response = await client.get('/api/v1/weixin/accounts')
 
     response.assertStatus(401)
   })
