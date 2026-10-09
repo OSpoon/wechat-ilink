@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+
+# Build outputs
+build
+dist
+.turbo
+**/.adonisjs
+
+# Secrets
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# Temp files
+/tmp
+
+# Logs
+npm-debug.log
+yarn-error.log
+*.log
+
+# Editors
+.fleet
+.idea
+
+# Platform specific
+.DS_Store
+
+# Frontend compiled assets
+public/assets
+
+# Frontend tests
+coverage
+.vitest-attachments
+**/__screenshots__
+*.sqlite
+*.sqlite3
+*.db

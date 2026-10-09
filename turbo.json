@@ -1,0 +1,74 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["build/**", "dist/**", ".adonisjs/**"],
+      "env": [
+        "NODE_ENV",
+        "APP_KEY",
+        "APP_URL",
+        "HOST",
+        "PORT",
+        "LOG_LEVEL",
+        "SESSION_DRIVER",
+        "VITE_API_URL",
+        "VITE_CLERK_PUBLISHABLE_KEY"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "codegen": {
+      "cache": false,
+      "env": [
+        "NODE_ENV",
+        "APP_KEY",
+        "APP_URL",
+        "HOST",
+        "PORT",
+        "LOG_LEVEL",
+        "SESSION_DRIVER"
+      ]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "env": [
+        "NODE_ENV",
+        "APP_KEY",
+        "APP_URL",
+        "HOST",
+        "PORT",
+        "LOG_LEVEL",
+        "SESSION_DRIVER"
+      ]
+    },
+    "lint:check": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "format": {
+      "outputs": [],
+      "cache": false
+    },
+    "format:check": {
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "env": [
+        "NODE_ENV",
+        "APP_KEY",
+        "APP_URL",
+        "HOST",
+        "PORT",
+        "LOG_LEVEL",
+        "SESSION_DRIVER"
+      ]
+    }
+  }
+}

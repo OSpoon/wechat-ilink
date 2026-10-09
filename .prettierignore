@@ -1,0 +1,8 @@
+build
+dist
+node_modules
+.adonisjs
+tmp
+.turbo
+.vite
+.eslintcache
