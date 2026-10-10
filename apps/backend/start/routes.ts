@@ -14,6 +14,27 @@ import router from '@adonisjs/core/services/router'
 import openapi from '@foadonis/openapi/services/main'
 import { apiThrottle, qrThrottle } from '#start/limiter'
 
+const openApiDocsPage = `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <title>微信 iLink API</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div id="api-reference"></div>
+    <script type="module">
+      import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
+
+      createApiReference('#api-reference', {
+        url: '/openapi.json',
+        proxyUrl: 'https://proxy.scalar.com',
+        localization: { locale: 'zh-CN' },
+      })
+    </script>
+  </body>
+</html>`
+
 const weixinAccounts = () => import('#controllers/weixin/accounts_controller')
 const system = () => import('#controllers/system_controller')
 const weixinLoginSessions = () => import('#controllers/weixin/login_sessions_controller')
@@ -36,7 +57,7 @@ router.get('/openapi.json', async ({ response }) => {
 
 router.get('/docs', async ({ response }) => {
   response.header('Cache-Control', 'no-store, no-cache, must-revalidate')
-  return response.type('text/html').send(openapi.generateUi('/openapi.json'))
+  return response.type('text/html').send(openApiDocsPage)
 })
 
 router

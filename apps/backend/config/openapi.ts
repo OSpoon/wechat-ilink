@@ -5,6 +5,7 @@ const controllerTags: Record<string, string> = {
   NewAccountController: '用户认证',
   AccessTokensController: '用户认证',
   ProfileController: '账号管理',
+  SettingsController: '账号管理',
   WeixinLoginSessionsController: '微信接入',
   WeixinAccountsController: '微信账号',
   WeixinMessagesController: '微信消息',
