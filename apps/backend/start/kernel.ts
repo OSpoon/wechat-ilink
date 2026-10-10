@@ -46,4 +46,6 @@ router.use([
  */
 export const middleware = router.named({
   auth: () => import('#middleware/auth_middleware'),
+  apiTokenAbility: () => import('#middleware/api_token_ability_middleware'),
+  fullAccessToken: () => import('#middleware/full_access_token_middleware'),
 })

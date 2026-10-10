@@ -74,10 +74,33 @@ export const authApi = {
 
 export type SettingsData = Record<string, Record<string, unknown>>
 
+export type ApiKeyAccess = 'read_only' | 'read_write'
+
+export type ApiKey = {
+  id: number
+  name: string
+  abilities: string[]
+  createdAt: string | null
+  expiresAt: string | null
+  lastUsedAt: string | null
+}
+
+export type CreatedApiKey = ApiKey & { token: string }
+
 export const settingsApi = {
   get: () => get<SettingsData>('/account/settings'),
   update: (section: string, data: Record<string, unknown>) =>
     patch<SettingsData>(`/account/settings/${section}`, data),
+}
+
+export const apiKeysApi = {
+  list: () => get<ApiKey[]>('/account/api-keys'),
+  create: (payload: {
+    name: string
+    access: ApiKeyAccess
+    expiresInDays: 7 | 30 | 90 | 365
+  }) => post<CreatedApiKey>('/account/api-keys', payload),
+  revoke: (keyId: number) => api.delete(`/account/api-keys/${keyId}`),
 }
 
 export const weixinApi = {

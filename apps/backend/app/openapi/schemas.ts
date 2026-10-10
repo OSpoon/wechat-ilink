@@ -81,6 +81,41 @@ export class UserResponseDocument {
   declare data: UserDocument
 }
 
+export class ApiKeyDocument {
+  @ApiProperty({ type: Number, example: 4 })
+  declare id: number
+
+  @ApiProperty({ type: String, example: 'Order sync service' })
+  declare name: string
+
+  @ApiProperty({ type: [String], example: ['api:read'] })
+  declare abilities: string[]
+
+  @ApiProperty({ ...dateTime, nullable: true, example: '2026-10-10T08:00:00.000Z' })
+  declare createdAt: string | null
+
+  @ApiProperty({ ...dateTime, example: '2027-01-08T08:00:00.000Z' })
+  declare expiresAt: string
+
+  @ApiProperty({ ...dateTime, nullable: true, example: null })
+  declare lastUsedAt: string | null
+}
+
+export class ApiKeyWithSecretDocument extends ApiKeyDocument {
+  @ApiProperty({ type: String, example: 'oat_xxx', description: '仅创建时返回一次。' })
+  declare token: string
+}
+
+export class ApiKeysResponseDocument {
+  @ApiProperty({ type: [ApiKeyDocument] })
+  declare data: ApiKeyDocument[]
+}
+
+export class ApiKeyCreatedResponseDocument {
+  @ApiProperty({ type: ApiKeyWithSecretDocument })
+  declare data: ApiKeyWithSecretDocument
+}
+
 export class MessageResponseDocument {
   @ApiProperty({ type: String, example: 'Logged out successfully' })
   declare message: string

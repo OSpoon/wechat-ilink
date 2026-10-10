@@ -77,6 +77,18 @@ router
   })
   .prefix('/api/v1/account')
   .use(middleware.auth({ guards: ['api'] }))
+  .use(middleware.apiTokenAbility())
+  .use(apiThrottle)
+
+router
+  .group(() => {
+    router.get('api-keys', [controllers.ApiKeys, 'index'])
+    router.post('api-keys', [controllers.ApiKeys, 'store'])
+    router.delete('api-keys/:keyId', [controllers.ApiKeys, 'destroy'])
+  })
+  .prefix('/api/v1/account')
+  .use(middleware.auth({ guards: ['api'] }))
+  .use(middleware.fullAccessToken())
   .use(apiThrottle)
 
 router
@@ -107,4 +119,5 @@ router
   })
   .prefix('/api/v1/weixin')
   .use(middleware.auth({ guards: ['api'] }))
+  .use(middleware.apiTokenAbility())
   .use(apiThrottle)

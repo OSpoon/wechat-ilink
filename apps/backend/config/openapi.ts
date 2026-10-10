@@ -6,6 +6,7 @@ const controllerTags: Record<string, string> = {
   AccessTokensController: '用户认证',
   ProfileController: '账号管理',
   SettingsController: '账号管理',
+  ApiKeysController: '账号管理',
   WeixinLoginSessionsController: '微信接入',
   WeixinAccountsController: '微信账号',
   WeixinMessagesController: '微信消息',
@@ -27,7 +28,7 @@ export default defineConfig({
     tags: [
       { name: '系统', description: '服务存活、就绪和基础信息。' },
       { name: '用户认证', description: '用户注册、登录和访问令牌管理。' },
-      { name: '账号管理', description: '当前 API 用户信息和访问令牌管理。' },
+      { name: '账号管理', description: '当前 API 用户信息、设置和 API Key 管理。' },
       { name: '微信接入', description: '微信二维码登录和账号接入。' },
       { name: '微信账号', description: '微信账号列表、状态和 Worker 管理。' },
       { name: '微信消息', description: '微信消息收发、媒体和输入状态。' },

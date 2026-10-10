@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
-import { Palette, UserCog } from 'lucide-react'
+import { KeyRound, Palette, UserCog } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Separator } from '@/components/ui/separator'
 import { ConfigDrawer } from '@/components/config-drawer'
@@ -21,6 +21,11 @@ const sidebarNavItems = [
     href: '/settings/appearance',
     icon: <Palette size={18} />,
   },
+  {
+    title: 'API Keys',
+    href: '/settings/api-keys',
+    icon: <KeyRound size={18} />,
+  },
 ]
 
 export function Settings() {
@@ -40,7 +45,9 @@ export function Settings() {
             {t('Settings')}
           </h1>
           <p className='text-muted-foreground'>
-            {t('Manage your account profile and console appearance.')}
+            {t(
+              'Manage your account profile, API keys, and console appearance.'
+            )}
           </p>
         </div>
         <Separator className='my-4 lg:my-6' />

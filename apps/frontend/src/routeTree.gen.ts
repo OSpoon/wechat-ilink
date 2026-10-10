@@ -25,6 +25,7 @@ import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedSettingsApiKeysRouteImport } from './routes/_authenticated/settings/api-keys'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedWebhooksIndexRouteImport } from './routes/_authenticated/webhooks/index'
 import { Route as AuthenticatedWebhooksWebhookIdDeliveriesRouteImport } from './routes/_authenticated/webhooks/$webhookId/deliveries'
@@ -114,6 +115,12 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedSettingsApiKeysRoute =
+  AuthenticatedSettingsApiKeysRouteImport.update({
+    id: '/api-keys',
+    path: '/api-keys',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
 const AuthenticatedSettingsAppearanceRoute =
   AuthenticatedSettingsAppearanceRouteImport.update({
     id: '/appearance',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/accounts/$accountId': typeof AuthenticatedAccountsAccountIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
+  '/settings/api-keys': typeof AuthenticatedSettingsApiKeysRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/accounts/': typeof AuthenticatedAccountsIndexRoute
   '/chats/': typeof AuthenticatedChatsIndexRoute
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/accounts/$accountId': typeof AuthenticatedAccountsAccountIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
+  '/settings/api-keys': typeof AuthenticatedSettingsApiKeysRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/accounts': typeof AuthenticatedAccountsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
@@ -187,6 +196,7 @@ export interface FileRoutesById {
   '/_authenticated/accounts/$accountId': typeof AuthenticatedAccountsAccountIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
+  '/_authenticated/settings/api-keys': typeof AuthenticatedSettingsApiKeysRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/accounts/': typeof AuthenticatedAccountsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/accounts/$accountId'
     | '/errors/$error'
     | '/settings/account'
+    | '/settings/api-keys'
     | '/settings/appearance'
     | '/accounts/'
     | '/chats/'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/accounts/$accountId'
     | '/errors/$error'
     | '/settings/account'
+    | '/settings/api-keys'
     | '/settings/appearance'
     | '/accounts'
     | '/chats'
@@ -249,6 +261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accounts/$accountId'
     | '/_authenticated/errors/$error'
     | '/_authenticated/settings/account'
+    | '/_authenticated/settings/api-keys'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/accounts/'
     | '/_authenticated/chats/'
@@ -382,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/settings/api-keys': {
+      id: '/_authenticated/settings/api-keys'
+      path: '/api-keys'
+      fullPath: '/settings/api-keys'
+      preLoaderRoute: typeof AuthenticatedSettingsApiKeysRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
     '/_authenticated/settings/appearance': {
       id: '/_authenticated/settings/appearance'
       path: '/appearance'
@@ -408,6 +428,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAccountRoute: typeof AuthenticatedSettingsAccountRoute
+  AuthenticatedSettingsApiKeysRoute: typeof AuthenticatedSettingsApiKeysRoute
   AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
 }
@@ -415,6 +436,7 @@ interface AuthenticatedSettingsRouteRouteChildren {
 const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteChildren =
   {
     AuthenticatedSettingsAccountRoute: AuthenticatedSettingsAccountRoute,
+    AuthenticatedSettingsApiKeysRoute: AuthenticatedSettingsApiKeysRoute,
     AuthenticatedSettingsAppearanceRoute: AuthenticatedSettingsAppearanceRoute,
     AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
   }
