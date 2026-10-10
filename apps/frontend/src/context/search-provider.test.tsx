@@ -123,7 +123,7 @@ describe('SearchProvider and CommandMenu', () => {
 
     await openCommandPalette(screen)
 
-    await userEvent.click(getByRole('option', { name: 'WeChat Accounts' }))
+    await userEvent.click(getByRole('option', { name: 'Accounts' }))
 
     expect(mocks.navigate).toHaveBeenCalledWith({ to: '/accounts' })
     await expect

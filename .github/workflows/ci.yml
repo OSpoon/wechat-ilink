@@ -28,6 +28,15 @@ jobs:
       PORT: 3334
       LOG_LEVEL: silent
       SESSION_DRIVER: memory
+      LIMITER_STORE: memory
+      ILINK_APP_ID: bot
+      ILINK_APP_CLIENT_VERSION: '132104'
+      ILINK_CHANNEL_VERSION: 2.4.8
+      ILINK_BOT_AGENT: OpenClaw
+      ILINK_BASE_URL: https://ilinkai.weixin.qq.com
+      ILINK_CDN_BASE_URL: https://novac2c.cdn.weixin.qq.com/c2c
+      ILINK_BOT_TYPE: '3'
+      MEDIA_STORAGE_PATH: tmp/media.ci
       TZ: UTC
     steps:
       - name: Check out repository
