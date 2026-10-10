@@ -175,4 +175,4 @@ X-Weixin-Signature: sha256=<hex-signature>
 
 ## 部署提示
 
-部署、备份和从旧服务迁移请参阅[部署指南](deployment.zh-CN.md)。生产环境需使用 HTTPS，并将 SQLite 数据库和媒体目录存放在持久化卷中。
+部署和备份请参阅[部署指南](deployment.zh-CN.md)。生产环境需使用 HTTPS，并将 SQLite 数据库和媒体目录存放在持久化卷中。

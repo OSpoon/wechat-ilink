@@ -207,7 +207,7 @@ export async function deliverWebhookDelivery(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'wechat-ilink-api-webhook/0.1.0',
+        'User-Agent': 'wechat-ilink-webhook/0.0.1',
         'X-Weixin-Event': delivery.eventType,
         'X-Weixin-Delivery': delivery.id,
         'X-Weixin-Signature': `sha256=${signature}`,

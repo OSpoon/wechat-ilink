@@ -10,6 +10,9 @@ tmp/*
 .env.production.local
 .env.development.local
 
+# Locally stored media
+/data/media/
+
 # Frontend assets compiled code
 public/assets
 

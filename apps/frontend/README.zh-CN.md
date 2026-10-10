@@ -2,9 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-基于 [satnaing/shadcn-admin](https://github.com/satnaing/shadcn-admin) 的 React 管理仪表盘，属于 pnpm/Turborepo workspace。
+WeChat iLink 管理控制台的 React 前端，属于 pnpm/Turborepo workspace。
 
-管理控制台提供实时微信仪表盘、聊天、账号、Webhook 投递记录，以及账户资料和外观设置。功能通过本地 AdonisJS API 和已配置的 iLink 服务提供。所有账户均使用 AdonisJS 邮箱和密码登录。
+前端提供仪表盘、聊天、微信账号管理、Webhook 和投递记录，以及个人资料和外观设置。页面通过 AdonisJS API 连接已配置的 iLink 服务，用户使用邮箱和密码登录。
 
 ## 开发
 

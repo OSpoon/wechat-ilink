@@ -6,7 +6,7 @@ A self-hosted admin console and API for connecting WeChat iLink accounts, managi
 
 ## What it does
 
-- Register and sign in with an email address and password. There is no preconfigured demo account.
+- Register and sign in with an email address and password.
 - Connect or reconnect WeChat accounts by scanning a QR code. Start, stop, and delete stopped accounts.
 - Manage conversations and send text, images, videos, and files. Images and videos can be previewed in chat.
 - Forward `message.received` events to your webhook endpoint with an HMAC-SHA256 signature, and inspect delivery records.
@@ -42,8 +42,6 @@ The frontend proxies `/api` to the backend at `http://localhost:3333`. The API r
 - `apps/frontend/.env`: `VITE_API_URL` defaults to `/api/v1`, which works with the local Vite proxy and same-origin deployments.
 - The SQLite database is `apps/backend/tmp/db.sqlite3`. Outbound media is stored under `apps/backend/data/media` by default. Back up both when preserving application data.
 - SQLite and local media storage are configured for a single backend instance. See the [deployment guide](docs/deployment.md) before running this in production.
-
-For replacing an existing WeChat iLink deployment, follow the [data migration notes](docs/deployment.md#replace-the-previous-wechat-ilink-service). Preserving encrypted account and webhook credentials requires the original `APP_KEY`.
 
 ## Development
 

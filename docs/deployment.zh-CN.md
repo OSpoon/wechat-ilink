@@ -58,12 +58,6 @@ docker compose --env-file deploy/.env -f deploy/compose.yml up -d
 
 请定期使用 SQLite 在线备份机制或停止写入后的卷快照备份数据库，并同时备份 `media-data`，将备份存放在主机之外。正式依赖备份前，应先验证恢复流程。
 
-## 替换旧版微信 iLink 服务
-
-需要保留微信账号、Webhook 密钥、消息历史和媒体时，请先停止旧服务，再做一致性备份。将旧服务的 SQLite 数据库和 `data/media` 目录复制到新部署的持久化存储中。新后端的 `APP_KEY` 必须使用旧服务的原值，用于解密已保存的微信 bot token、Webhook 密钥和会话上下文令牌；iLink 服务地址配置也应与旧服务保持兼容。
-
-新迁移沿用旧 iLink migration 标识，因此复制旧数据库后，启动迁移会跳过已有的 iLink 表，并应用新管理端所需的迁移。后续更新时继续保留 SQLite 和媒体卷。如果旧 `APP_KEY` 已丢失，请重新扫码绑定微信账号并重新创建 Webhook，不要复制无法解密的加密记录。
-
 ## 更新与主机设置
 
 推送 release tag 且镜像发布完成后，在主机上更新 `IMAGE_TAG`，再运行 `docker compose pull` 和 `docker compose up -d`。后端启动前会运行迁移。镜像发布已自动化；远程主机自动部署尚未接入，待选定部署主机并配置凭据后再接入。

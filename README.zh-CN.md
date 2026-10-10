@@ -6,7 +6,7 @@
 
 ## 当前功能
 
-- 使用邮箱和密码注册、登录；系统不会预置演示账号。
+- 使用邮箱和密码注册、登录。
 - 扫码绑定或重新连接微信账号，并支持启动、停止和删除已停止的账号。
 - 管理聊天会话，发送文本、图片、视频和文件；图片与视频可在聊天中预览。
 - 将 `message.received` 事件通过 HMAC-SHA256 签名投递到 Webhook，并查看投递记录。
@@ -42,8 +42,6 @@ pnpm dev
 - `apps/frontend/.env`：`VITE_API_URL` 默认为 `/api/v1`，适用于本地 Vite 代理和同源部署。
 - SQLite 数据库位于 `apps/backend/tmp/db.sqlite3`。默认情况下，出站媒体保存在 `apps/backend/data/media`。需要保留数据时请同时备份两者。
 - SQLite 和本地媒体存储按单个后端实例配置。生产部署前请阅读[部署指南](docs/deployment.zh-CN.md)。
-
-替换现有微信 iLink 服务时，请参阅[旧服务数据迁移说明](docs/deployment.zh-CN.md#替换旧版微信-ilink-服务)。要保留加密的账号和 Webhook 凭据，必须使用旧服务原来的 `APP_KEY`。
 
 ## 开发
 

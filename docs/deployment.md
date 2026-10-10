@@ -83,21 +83,6 @@ Back up the database regularly using SQLite's online backup mechanism or a
 quiesced volume snapshot, and back up `media-data` with it. Store backups
 outside the host and verify restore procedures before relying on them.
 
-## Replace the previous WeChat iLink service
-
-To preserve existing WeChat accounts, webhook secrets, message history, and
-media, stop the old service before taking a consistent backup. Copy its SQLite
-database and `data/media` directory into the new deployment's persistent
-storage. Set the new backend's `APP_KEY` to the exact existing value: it is
-needed to decrypt stored WeChat bot tokens, webhook secrets, and conversation
-tokens. Keep the iLink service URL settings compatible with the old service.
-
-The new migrations reuse the old iLink migration identifiers, so startup skips
-tables already present in the copied database and applies the admin-specific
-migrations. Keep both the SQLite and media volumes during future updates.
-If the old `APP_KEY` is unavailable, create fresh QR bindings and webhook
-secrets instead of copying encrypted records that cannot be decrypted.
-
 ## Updates and remaining host setup
 
 After a release tag is pushed and images are published, update `IMAGE_TAG` on

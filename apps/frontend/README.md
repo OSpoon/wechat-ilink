@@ -2,9 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-React admin dashboard based on [satnaing/shadcn-admin](https://github.com/satnaing/shadcn-admin) in the pnpm/Turborepo workspace.
+React frontend for the WeChat iLink administration console in the pnpm/Turborepo workspace.
 
-The admin provides the live WeChat dashboard, chats, accounts, webhooks and delivery records, plus profile and appearance settings. These features use the local AdonisJS API and configured iLink service. Accounts use AdonisJS email and password authentication.
+It provides the dashboard, chats, WeChat account management, webhooks and delivery records, plus profile and appearance settings. The frontend uses the AdonisJS API and configured iLink service. Users sign in with an email address and password.
 
 ## Development
 

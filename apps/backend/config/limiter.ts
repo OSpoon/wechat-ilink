@@ -8,7 +8,7 @@ const limiterConfig = defineConfig({
       tableName: 'rate_limits',
     }),
     memory: stores.memory({
-      keyPrefix: 'wechat-ilink-api',
+      keyPrefix: 'wechat-ilink',
     }),
   },
 })
